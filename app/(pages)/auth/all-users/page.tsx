@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Layout from "app/(root)/layout";
+import Layout from "@/app/(root)/layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "@/components/Navbar";
@@ -10,12 +10,84 @@ import Breadcrumbs from "@/components/ui/BreadCrumbs";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { BASE_URL } from "@/api/base-url";
 import Modal from "@/components/Modal"; // Import the Modal component
+import { useRouter } from "next/navigation";
 
 const AllUsers = () => {
   const breadcrumbs = [
     { name: "Account", href: "/auth" },
     { name: "All Users", href: "/auth/all-users" },
   ];
+
+  const router = useRouter();
+  const [usersList, setusersList] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+
+  const handleOpenModal = (userId: number) => {
+    setSelectedUser(userId);
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
+    setResponse("Yes");
+    setShowModal(false);
+  };
+
+  const handleCancel = () => {
+    setResponse("No");
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(
+          `https://medequip-api.vercel.app/api/users`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+        if (!response.ok)
+          throw new Error("Failed to fetch equipment", response.json);
+        const data = await response.json();
+        console.log(data);
+        setusersList(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const deleteUser = async () => {
+      if (response === "Yes" && selectedUser !== null) {
+        try {
+          const res = await fetch(
+            `https://medequip-api.vercel.app/api/users/${selectedUser}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
+          if (!res.ok) throw new Error("Failed to delete user", res.json);
+          const data = await res.json();
+          console.log(data);
+          // setusersList((prev) => prev.filter((user) => user.id !== selectedUser));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    deleteUser();
+  }, [response, selectedUser]);
 
   return (
     <div className="flex flex-col bg-gray-100 w-full lg:grid lg:grid-cols-[auto,1fr] min-h-screen text-gray-800">
@@ -36,91 +108,83 @@ const AllUsers = () => {
           </Link>
         </header>
 
-        <section className="mt-4 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
+        <section className="mt-4 bg-white rounded-lg shadow-md p-4">
+          <h3 className="text-base md:text-lg font-semibold text-gray-700 mb-4">
             All Users
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-200">
-                  <th className="p-4 text-sm">Name</th>
-                  <th className="p-4 text-sm">Occupation</th>
-                  <th className="p-4 text-sm">Location</th>
-                  <th className="p-4 text-sm">Actions</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Name</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Email</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Phone</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="p-4 text-sm">{user.name}</td>
-                    <td className="p-4 text-sm">{user.occupation}</td>
-                    <td className="p-4 text-sm">{user.location}</td>
-                    <td className="p-4 flex space-x-2 text-sm">
-                      <button
-                        onClick={() => handleViewUser(user)}
-                        className="flex items-center text-green-500 p-2 hover:text-green-700"
-                      >
-                        <FontAwesomeIcon
-                          icon={faEye as IconProp}
-                          className="h-4 w-4"
+                {/* Table rows */}
+                {usersList.map(
+                  (
+                    user: {
+                      id: number;
+                      firstname: string;
+                      lastname: string;
+                      email: string;
+                      phone: string;
+                    },
+                    index,
+                  ) => (
+                    <tr key={index} className="border-t">
+                      <td className="p-2 md:p-4 text-xs md:text-sm">
+                        {user.firstname} {user.lastname}
+                      </td>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">
+                        {user.email}
+                      </td>
+                      <td className="p-2 md:p-4 text-xs md:text-sm">
+                        {user.phone}
+                      </td>
+                      <td className="p-2 md:p-4 flex space-x-2 text-xs md:text-sm">
+                        <button
+                          onClick={() =>
+                            router.push(
+                              `/auth/profile?id=${encodeURIComponent(user.id)}`,
+                            )
+                          }
+                          className="flex items-center text-green-500 p-1 sm:p-2"
+                        >
+                          <FontAwesomeIcon
+                            icon={faEye as IconProp}
+                            className="h-4 w-4"
+                          />
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleOpenModal(user.id);
+                          }}
+                          className="flex items-center text-red-500 p-1 sm:p-2"
+                        >
+                          <FontAwesomeIcon
+                            icon={faTrash as IconProp}
+                            className="h-4 w-4"
+                          />
+                        </button>
+                        <Modal
+                          isOpen={showModal}
+                          message="Are you sure you want to proceed?"
+                          onConfirm={handleConfirm}
+                          onCancel={handleCancel}
                         />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteUser(user.id, user.name)}
-                        className="flex items-center text-red-500 p-2 hover:text-red-700"
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrash as IconProp}
-                          className="h-4 w-4"
-                        />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ),
+                )}
               </tbody>
             </table>
           </div>
         </section>
       </div>
-
-      {selectedUser && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">
-                User Profile
-              </h2>
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <FontAwesomeIcon
-                  icon={faTimes as IconProp}
-                  className="h-5 w-5"
-                />
-              </button>
-            </div>
-            <div>
-              <p>Name: {selectedUser.name}</p>
-              <p>Occupation: {selectedUser.occupation}</p>
-              <p>Location: {selectedUser.location}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isModalOpen && userToDelete && (
-        <Modal
-          isOpen={isModalOpen}
-          message={`Are you sure you want to delete ${userToDelete.name}?`}
-          onConfirm={() => {
-            handleDeleteApiCall(userToDelete.id, userToDelete.name);
-            setIsModalOpen(false);
-          }}
-          onCancel={() => setIsModalOpen(false)}
-        />
-      )}
     </div>
   );
 };

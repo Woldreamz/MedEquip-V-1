@@ -1,7 +1,6 @@
 "use client";
-
-import React, { useState } from "react";
-import Layout from "app/(root)/layout";
+import React, { useState, useEffect } from "react";
+import Layout from "@/app/(root)/layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -11,12 +10,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Navbar from "@/components/Navbar";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-
-interface User {
-  name: string;
-  occupation: string;
-  location: string;
-}
+import { useRouter } from "next/navigation";
+import Modal from "@/components/Modal";
 
 interface TopUser {
   username: string;
@@ -25,7 +20,76 @@ interface TopUser {
 }
 
 const Accounts = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [usersList, setusersList] = useState([]);
+  const [selectedUser, setSelectedUser] = useState<number | null>(null);
+
+  const handleOpenModal = (userId: number) => {
+    setSelectedUser(userId);
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
+    setResponse("Yes");
+    setShowModal(false);
+  };
+
+  const handleCancel = () => {
+    setResponse("No");
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(
+          `https://medequip-api.vercel.app/api/users`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+        if (!response.ok)
+          throw new Error("Failed to fetch equipment", response.json);
+        const data = await response.json();
+        console.log(data);
+        setusersList(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const deleteUser = async () => {
+      if (response === "Yes" && selectedUser !== null) {
+        try {
+          const res = await fetch(
+            `https://medequip-api.vercel.app/api/users/${selectedUser}`,
+            {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            },
+          );
+          if (!res.ok) throw new Error("Failed to delete user", res.json);
+          const data = await res.json();
+          console.log(data);
+          // setusersList((prev) => prev.filter((user) => user.id !== selectedUser));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    deleteUser();
+  }, [response, selectedUser]);
 
   const topUsersByMonth: Record<string, TopUser[]> = {
     January: [
@@ -52,20 +116,6 @@ const Accounts = () => {
 
   const [selectedMonth, setSelectedMonth] = useState("January");
   const [viewAll, setViewAll] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  const handleView = (user: User) => {
-    setSelectedUser(user);
-  };
-
-  const handleDelete = (userName: string) => {
-    const confirmed = confirm(`Are you sure you want to delete ${userName}?`);
-    if (confirmed) {
-      setUsers((prevUsers) =>
-        prevUsers.filter((user) => user.name !== userName),
-      );
-    }
-  };
 
   return (
     <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
@@ -91,42 +141,69 @@ const Accounts = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="p-3 text-left text-gray-600">Name</th>
-                  <th className="p-3 text-left text-gray-600">Occupation</th>
-                  <th className="p-3 text-left text-gray-600">Location</th>
+                  <th className="p-3 text-left text-gray-600">Email</th>
+                  <th className="p-3 text-left text-gray-600">Phone</th>
                   <th className="p-3 text-left text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="rounded-lg">
-                {users.map((user, index) => (
-                  <tr
-                    key={index}
-                    className="border-t hover:bg-gray-50 rounded-lg"
-                  >
-                    <td className="p-3">{user.name}</td>
-                    <td className="p-3">{user.occupation}</td>
-                    <td className="p-3">{user.location}</td>
-                    <td className="p-3 flex space-x-3">
-                      <button
-                        onClick={() => handleView(user)}
-                        className="text-green-500 bg-gray-100 hover:text-green-700 rounded-md p-2"
+                {usersList
+                  .slice(0, 5)
+                  .map(
+                    (
+                      user: {
+                        id: number;
+                        firstname: string;
+                        lastname: string;
+                        email: string;
+                        phone: string;
+                      },
+                      index,
+                    ) => (
+                      <tr
+                        key={index}
+                        className="border-t hover:bg-gray-50 rounded-lg"
                       >
-                        <FontAwesomeIcon
-                          icon={faEye as IconProp}
-                          className="h-4 w-4"
-                        />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(user.name)}
-                        className="text-red-500 bg-gray-100 hover:text-red-700 rounded-md p-2"
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrash as IconProp}
-                          className="h-4 w-4"
-                        />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        <td className="p-3">
+                          {user.firstname} {user.lastname}
+                        </td>
+                        <td className="p-3">{user.email}</td>
+                        <td className="p-3">{user.phone}</td>
+                        <td className="p-3 flex space-x-3">
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/auth/profile?id=${encodeURIComponent(user.id)}`,
+                              )
+                            }
+                            className="text-green-500 bg-gray-100 hover:text-green-700 rounded-md"
+                          >
+                            <FontAwesomeIcon
+                              icon={faEye as IconProp}
+                              className="h-4 w-4"
+                            />
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleOpenModal(user.id);
+                            }}
+                            className="text-red-500 bg-gray-100 hover:text-red-700 rounded-md"
+                          >
+                            <FontAwesomeIcon
+                              icon={faTrash as IconProp}
+                              className="h-4 w-4"
+                            />
+                          </button>
+                          <Modal
+                            isOpen={showModal}
+                            message="Are you sure you want to proceed?"
+                            onConfirm={handleConfirm}
+                            onCancel={handleCancel}
+                          />
+                        </td>
+                      </tr>
+                    ),
+                  )}
               </tbody>
             </table>
           </div>
@@ -185,25 +262,6 @@ const Accounts = () => {
           </div>
         </div>
       </div>
-
-      {/* User Profile Popup */}
-      {selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
-            <button
-              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
-              onClick={() => setSelectedUser(null)}
-            >
-              <FontAwesomeIcon icon={faTimes as IconProp} />
-            </button>
-            <h2 className="text-lg font-semibold text-gray-800">
-              {selectedUser.name}
-            </h2>
-            <p className="text-sm text-gray-600">{selectedUser.occupation}</p>
-            <p className="text-sm text-gray-600">{selectedUser.location}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

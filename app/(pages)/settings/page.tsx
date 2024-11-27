@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
-import BaseLayout from "components/BaseLayout"; // Ensure this path matches your folder structure
+import { useState, useEffect } from "react";
+import BaseLayout from "@/components/BaseLayout"; // Ensure this path matches your folder structure
 
 const Settings = () => {
-  const [profile, setProfile] = useState({});
+  const [profile, setProfile] = useState<any>(null);
 
   const [preferences, setPreferences] = useState({
     notifications: true,
     darkMode: false,
   });
+
+  useEffect(() => {
+    // Retrieve the user object from localStorage on the client side
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setProfile(JSON.parse(storedUser));
+    }
+  }, []);
+
+  if (!profile) {
+    return <div>Loading...</div>; // Show a loading state until user data is loaded
+  }
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,12 +59,24 @@ const Settings = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600">
-                    Name
+                    First Name
                   </label>
                   <input
                     type="text"
                     name="name"
-                    value={profile.name}
+                    value={profile.firstname}
+                    onChange={handleProfileChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={profile.lastname}
                     onChange={handleProfileChange}
                     className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
                   />

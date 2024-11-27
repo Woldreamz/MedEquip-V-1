@@ -1,7 +1,7 @@
 import React from "react";
 import { EquipmentIcon } from "../image";
 import { StaticImageData } from "next/image";
-import shears from "../../../../../../../../../Downloads/WolMedic-Frontend-main/public/Images/shears.png";
+import shears from '@/public/Images/shears.png'
 import { useRouter } from "next/navigation";
 
 export interface CardProps {

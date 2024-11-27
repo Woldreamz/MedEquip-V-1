@@ -1,8 +1,21 @@
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    // Retrieve the user object from localStorage on the client side
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setProfile(JSON.parse(storedUser));
+    }
+  }, []);
+  if (!profile) {
+    return <div>Loading...</div>; // Show a loading state until user data is loaded
+  }
+
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-md p-2 z-10">
@@ -27,9 +40,9 @@ const Navbar = () => {
             {/* Name and Designation */}
             <div className="ml-3 pt-4">
               <p className="text-sm font-semibold text-gray-800 leading-3">
-                Ella Barris
+                {profile.firstname} {profile.lastname}
               </p>
-              <p className="text-sm text-gray-500">Admin</p>
+              <p className="text-sm text-gray-500">{profile.role}</p>
             </div>
             {/* Dropdown Icon */}
             <button

@@ -16,7 +16,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",
+    "baseUrl": "./WolMedic-Frontend",
     "paths": {
       "@/*": [
         "./*"

@@ -3,6 +3,15 @@
 import React, { useState } from "react";
 import Image from "next/image";
 
+interface FormState {
+  name: string;
+  description: string;
+  category: string;
+  image: File | string;
+  tags: string[];
+  useCases: string;
+}
+
 const steps = [
   { id: 1, title: "Basic Information" },
   { id: 2, title: "Equipment Description" },
@@ -57,6 +66,32 @@ const EquipmentStepper = () => {
     "/stetoscope.png",
     "/chemobed.png",
   ]);
+  const [tag, setTag] = useState<string[]>([]);
+  const [form, setForm] = useState<FormState>({
+    name: '',
+    description: '',
+    category: '',
+    image: '',
+    tags: [],
+    useCases: ''
+  });
+
+  function handleChange(event:React.ChangeEvent<HTMLInputElement>) {
+    const { name, value, files } = event.target;
+   
+
+    if (name === 'tags') {
+        const tagsArray = value.split(',').map((tag) => tag.trim());
+        setTag(tagsArray); // Fix: directly set the array instead of using spread operator
+        setForm({...form, tags: tagsArray});
+    }else if (name === 'image' && files && files.length>0) {
+        // const file = files[0];
+        setForm({...form, image: files[0]});
+    } else{
+        setForm({...form, [name]: value }); 
+    }
+    console.log(form);
+  }
 
   // Modal state for success/cancel
   const [modalVisible, setModalVisible] = useState(false);
@@ -71,8 +106,8 @@ const EquipmentStepper = () => {
   };
 
   const handleAddKeyword = () => {
-    if (newKeyword && !keywords.includes(newKeyword)) {
-      setKeywords([...keywords, newKeyword]);
+    if (newKeyword && !tag.includes(newKeyword)) {
+      setKeywords([...tag, newKeyword]);
       setNewKeyword("");
     }
   };
@@ -84,22 +119,48 @@ const EquipmentStepper = () => {
     }
   };
 
-  const handleSaveAndUpload = () => {
-    const mockData = {
-      name,
-      category,
-      description,
-      specifications,
-      keywords,
-      useCases,
-      images,
-    };
-    console.log("Review Data:", mockData);
-    setModalMessage("Equipment submitted successfully!");
-    setModalType("success");
-    setModalVisible(true);
-  };
+  const handleSubmit = async () => {
+    
+    const formData = new FormData();
 
+  // Append all form fields to FormData
+  formData.append("name", form.name);
+  formData.append("description", form.description);
+  formData.append("category", form.category);
+  // formData.append("tags", JSON.stringify(form.tags));
+  form.tags.forEach((tag) => formData.append("tags[]", tag));
+  formData.append("useCases", form.useCases);
+
+  // Append the file (if any)
+   if (form.image instanceof File) {
+    formData.append("files", form.image);
+   }
+    console.log(formData);
+    
+    
+    try {
+        const response = await fetch('https://medequip-api.vercel.app/api/equipment/',{
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+          body: formData,
+        });
+        if (response.ok) {
+          //redirect to the email verification page after sucessfull submission
+          const responseData = await response.json();
+          console.log(responseData);
+        }else {
+          const errorData = await response.json();
+          console.error("Error: Failed to submit the form", errorData);
+          alert("Failed to create equipment");
+        }
+      } catch (error) {
+        console.error("An error occured:", error);
+      }
+    
+  }
   const handleCancel = () => {
     setModalMessage("Equipment submission canceled!");
     setModalType("cancel");
@@ -124,8 +185,9 @@ const EquipmentStepper = () => {
               <span className="text-sm font-medium">Name</span>
               <input
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                name="name"
+                value={form.name}
+                onChange={handleChange}
                 placeholder="Enter equipment name"
                 className="w-full border-gray-300 rounded-md shadow-sm mt-1"
               />
@@ -134,8 +196,9 @@ const EquipmentStepper = () => {
               <span className="text-sm font-medium">Category</span>
               <div className="flex gap-2 mt-1">
                 <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  value={form.category}
+                  onChange={handleChange}
+                  name="category"
                   className="flex-1 border-gray-300 rounded-md shadow-sm"
                 >
                   <option value="" disabled>
@@ -175,8 +238,9 @@ const EquipmentStepper = () => {
                 Provide a detailed description of the equipment.
               </p>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={form.description}
+                onChange={handleChange}
+                name="description"
                 placeholder="Enter description here..."
                 className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 rows={6}
@@ -320,8 +384,9 @@ const EquipmentStepper = () => {
               <div className="space-y-4">
                 <input
                   type="text"
-                  value={newKeyword}
-                  onChange={(e) => setNewKeyword(e.target.value)}
+                  value={form.tags}
+                  onChange={handleChange}
+                  name="tags"
                   placeholder="Enter a keyword"
                   className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 />
@@ -333,7 +398,7 @@ const EquipmentStepper = () => {
                 </button>
               </div>
               <ul className="mt-4 flex gap-2 flex-wrap">
-                {keywords.map((keyword, index) => (
+                {tag.map((keyword, index) => (
                   <li
                     key={index}
                     className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-lg text-sm"
@@ -363,11 +428,12 @@ const EquipmentStepper = () => {
                 List practical applications for the equipment.
               </p>
               <textarea
-                value={newUseCase}
-                onChange={(e) => setNewUseCase(e.target.value)}
+                value={form.useCases}
+                onChange={handleChange}
                 placeholder="Enter a use case"
                 className="w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
                 rows={3}
+                name="useCases"
               />
               <button
                 onClick={handleAddUseCase}
@@ -402,13 +468,13 @@ const EquipmentStepper = () => {
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Review Your Equipment</h2>
             <p>
-              <strong>Name:</strong> {name}
+              <strong>Name:</strong> {form.name}
             </p>
             <p>
-              <strong>Category:</strong> {category}
+              <strong>Category:</strong> {form.category}
             </p>
             <p>
-              <strong>Description:</strong> {description}
+              <strong>Description:</strong> {form.description}
             </p>
             <p>
               <strong>Specifications:</strong>
@@ -424,7 +490,7 @@ const EquipmentStepper = () => {
               <strong>Keywords:</strong> {keywords.join(", ")}
             </p>
             <p>
-              <strong>Use Cases:</strong> {useCases.join(", ")}
+              <strong>Use Cases:</strong> {form.useCases}
             </p>
             <p>
               <strong>Uploaded Images:</strong>
@@ -450,7 +516,7 @@ const EquipmentStepper = () => {
                 Back
               </button>
               <button
-                onClick={handleSaveAndUpload}
+                onClick={handleSubmit}
                 className="w-full bg-green-500 text-white py-2 rounded-lg shadow hover:bg-green-600"
               >
                 Submit

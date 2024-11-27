@@ -4,36 +4,38 @@ import { useState, useEffect } from "react";
 import EquipmentList from "@/components/equipment/cardList";
 import { MinorNav } from "@/components/equipment/minorNav";
 import add from "@/public/icons/add.svg";
-import { equips } from "@/components/equipment/data"; // Simulated static data
 import React from "react";
-import Layout from "app/(root)/layout";
+import Layout from "@/app/(root)/layout";
 import Navbar from "@/components/Navbar";
-import { Equipment } from "@/components/equipment/types"; // Assuming you have a types file
 
 const EquipmentsPage = () => {
   // State variables
-  const [equipmentData, setEquipmentData] = useState<Equipment[]>(equips);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [equipmentList, setEquipmentList] = useState([]);
 
   useEffect(() => {
-    // Simulate fetching data
-    setLoading(true);
-    setTimeout(() => {
-      // Simulate error for testing
-      if (Math.random() < 0.1) {
-        setError("Failed to load equipment data.");
-        setLoading(false);
-      } else {
-        setEquipmentData(equips);
-        setLoading(false);
+    const equipList = async () => {
+      try {
+        const response = await fetch(
+          `https://medequip-api.vercel.app/api/equipment/`,
+        );
+        if (!response.ok)
+          throw new Error("Failed to fetch equipment", response.json);
+        const data = await response.json();
+        console.log(data);
+        setEquipmentList(data);
+      } catch (error) {
+        console.error(error);
       }
-    }, 1500); // Simulate 1.5 seconds fetch time
+    };
+
+    equipList();
   }, []);
 
   // Filter equipment based on search query
-  const filteredEquipments = equipmentData.filter((equipment) =>
+  const filteredEquipments = equipmentList.filter((equipment) =>
     equipment.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -91,13 +93,11 @@ const EquipmentsPage = () => {
           )}
 
           {/* Pagination */}
-          {!loading && !error && (
-            <div className="flex justify-center mt-6">
-              <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                Load More
-              </button>
-            </div>
-          )}
+          <div className="flex justify-center mt-6">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+              Load More
+            </button>
+          </div>
         </section>
       </div>
     </div>

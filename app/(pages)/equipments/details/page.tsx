@@ -1,55 +1,106 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { EquipmentImageList } from "@/components/equipment/image/imageCollection";
 import EquipmentDetail from "@/components/equipment/forms/details";
 import Layout from "@/app/(root)/layout";
 import Navbar from "@/components/Navbar";
-import FileInput from "@/components/ui/FileInput";
+import Button from "@/components/ui/Button";
+import shears from "@/public/Images/shears.png";
+import { useSearchParams, useRouter } from "next/navigation";
+import Modal from '@/components/Modal';
 
-import { Modal } from "@/components/ui/Modal";
-import TagManager from "@/components/equipment/forms/TagManager";
-import { InlineNotification } from "@/components/ui/InlineNotification";
 
 const EquipmentDetails = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [images, setImages] = useState([]); // Start with an empty array for uploaded images
-  const [equipmentDetails, setEquipmentDetails] = useState({
-    name: "Scissors",
-    category: "Surgery",
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams?.get('id');
+  const [details, setDetails] = useState({
+    id: id,
+    name: "",
+    category: "",
+    description: "",
+    tags: [],
+    useCases: ""
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<number | null>(null);
+
+  const handleOpenModal = (equipmentId: number) => {
+    setSelectedEquipment(equipmentId);
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
+    setResponse("Yes");
+    setShowModal(false);
+  };
+
+  const handleCancel = () => {
+    setResponse("No");
+    setShowModal(false);
+  };
+
+
+  useEffect(() =>{
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(`https://medequip-api.vercel.app/api/equipment/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch equipment', response.json);
+        const data = await response.json();
+        console.log(data);
+        setDetails(data);
+        console.log(details);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUsers();
+  },[id]);
+
+  useEffect(() => {
+    const deleteUser = async () => {
+      if (response === "Yes" && selectedEquipment !== null) {
+        try {
+          const res = await fetch(`https://medequip-api.vercel.app/api/equipment/${selectedEquipment}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+            }
+          );
+          // if (!res.ok) throw new Error('Failed to delete user', res.json);
+          // const data = await res.json();
+          // console.log(data);
+          router.back();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      
+    };
+    deleteUser();
+  }, [response, selectedEquipment]);
+  
+
+  const data = [
+    { src: shears, alt: "shears" },
+    { src: shears, alt: "shears" },
+    { src: shears, alt: "shears" },
+  ];
+  const detail = {
+    name: details.name,
+    category: details.category,
     description:
-      "Lorem ipsum dolor sit amet consectetur. Tellus sapien laoreet quisque lorem dignissim adipiscing sit.",
+      details.description,
     age: "19-35",
     gender: "Female",
     length: "15cm",
     width: "30cm",
-    keywords: ["Scissors", "Surgery", "Cutting", "Shears"],
-  });
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
-
-  // Toggle Edit Mode
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
+    keywords: [details.tags],
   };
-
-  // Handle Image Upload
-  const handleImageUpload = (newImage: string) => {
-    setImages([...images, { src: newImage, alt: "uploaded-image" }]);
-    setNotification("Image uploaded successfully!");
-  };
-
-  // Handle Image Deletion
-  const handleImageDelete = (imageIndex: number) => {
-    setImages(images.filter((_, index) => index !== imageIndex));
-    setNotification("Image deleted successfully!");
-  };
-
-  useEffect(() => {
-    if (notification) {
-      setTimeout(() => setNotification(null), 3000); // Hide notification after 3 seconds
-    }
-  }, [notification]);
 
   return (
     <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
@@ -62,49 +113,26 @@ const EquipmentDetails = () => {
 
       {/* Main Content */}
       <div className="flex-1 lg:ml-[21%] p-6 space-y-6 pt-20">
-        <section className="bg-white p-6 pl-35 rounded-lg shadow-md">
-          <div className="flex flex-wrap gap-4 mt-4">
-            {/* Equipment Detail Section */}
-            <EquipmentDetail
-              {...equipmentDetails}
-              isEditing={isEditing}
-              onDetailChange={handleDetailUpdate}
-            />
-
-            {/* Tags and Keywords Management */}
-            <TagManager
-              keywords={equipmentDetails.keywords}
-              onKeywordChange={(keywords) =>
-                handleDetailUpdate({ ...equipmentDetails, keywords })
-              }
-              buttonStyle="bg-transparent text-gray-700 border border-gray-300 hover:bg-gray-100 text-sm py-1 px-2" // Custom styles for smaller and matching buttons
-            />
-
-            {/* Equipment Image Management */}
-            <div className="w-full mt-4">
-              <FileInput onUpload={handleImageUpload} />
-              <EquipmentImageList
-                list={images}
-                onDelete={handleImageDelete}
-                isEditable={isEditing}
-              />
+        <section className="bg-white p-6 rounded-lg shadow-md">
+          <div className='flex flex-row justify-between h-10 my-4'>
+            <h3 className='text-black text-lg pl-5 md:pl-[15%]'>Equipment Details</h3>
+            <div className='flex justify-between gap-4'>
+                <Button label='Edit' otherStyles='' onClick={() => router.push(`/equipments/UpdateEquipment?id=${encodeURIComponent(details.id)}`)} typeProperty="button"/>
+                <Button label='Delete'otherStyles='' onClick={() => {handleOpenModal(details.id)}} typeProperty="button" />
             </div>
+            <Modal
+              isOpen={showModal}
+              message="Are you sure you want to proceed?"
+              onConfirm={handleConfirm}
+              onCancel={handleCancel}
+            />
           </div>
-
-          {/* Inline Notification */}
-          {notification && <InlineNotification message={notification} />}
+          <div className="flex flex-wrap gap-4 mt-4">
+            <EquipmentDetail {...detail} />
+            <EquipmentImageList list={data} />
+          </div>
         </section>
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <Modal
-          title="Confirm Deletion"
-          message="Are you sure you want to delete this equipment?"
-          onConfirm={handleDeleteEquipment}
-          onCancel={() => setShowDeleteModal(false)}
-        />
-      )}
     </div>
   );
 };

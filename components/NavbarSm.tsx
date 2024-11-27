@@ -16,7 +16,7 @@ const NavBarSm = () => {
   return (
     <nav className="bg-gray-800 text-white py-2">
       <div className="container mx-auto flex justify-between items-center px-4">
-        <Link href="/" className="flex items-center">
+        <Link href="/public" className="flex items-center">
           <Image src="/logo.svg" alt="IHA Logo" width={200} height={60} />
         </Link>
 
@@ -33,7 +33,7 @@ const NavBarSm = () => {
         <ul className="flex flex-col bg-gray-800">
           {/* Dashboard Link */}
           <li className="py-2 px-4 border-b border-gray-700">
-            <Link href="/" className="hover:text-gray-400">
+            <Link href="/public" className="hover:text-gray-400">
               Dashboard
             </Link>
           </li>
