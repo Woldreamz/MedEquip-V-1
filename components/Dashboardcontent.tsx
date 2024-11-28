@@ -10,8 +10,8 @@ import {
   isWithinInterval,
 } from "date-fns";
 import Card from "./Card";
-import Layout from "@/app/(root)/layout"; // Assuming this is the correct path
-import Navbar from "@/components/Navbar";
+import Layout from "../app/(root)/layout"; // Assuming this is the correct path
+import Navbar from "../components/Navbar";
 
 type TableData = {
   user: string;

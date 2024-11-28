@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Layout from "@/app/(root)/layout";
+import Layout from "../../../(root)/layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "@/components/Navbar";
-import Breadcrumbs from "@/components/ui/BreadCrumbs";
+import Navbar from "../../../../components/Navbar";
+import Breadcrumbs from "../../../../components/ui/BreadCrumbs";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { BASE_URL } from "@/api/base-url";
-import Modal from "@/components/Modal"; // Import the Modal component
+import Modal from "../../../../components/Modal"; // Import the Modal component
 import { useRouter } from "next/navigation";
 
 const AllUsers = () => {

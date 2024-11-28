@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Layout from "./layout";
-import Navbar from "@/components/Navbar";
+import Navbar from "../../components/Navbar";
 // import Sidebar from "@/components/Sidebar";
 import Accounts from "../(pages)/auth/page";
 import AllUsers from "../(pages)/auth/all-users/page";
 import UserProfile from "../(pages)/auth/profile/page";
-import DashboardContent from "@/components/Dashboardcontent"; // Importing DashboardContent
-import withAuth from "@/hoc/WithAuth";
+import DashboardContent from "../../components/Dashboardcontent"; // Importing DashboardContent
+import withAuth from "../../hoc/WithAuth";
 
 // Define SubItem type
 type SubItem = {

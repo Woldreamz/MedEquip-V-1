@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import BaseLayout from "@/components/BaseLayout"; // Ensure this path matches your folder structure
+import BaseLayout from "../../../components/BaseLayout"; // Ensure this path matches your folder structure
 
 const Settings = () => {
   const [profile, setProfile] = useState<any>(null);

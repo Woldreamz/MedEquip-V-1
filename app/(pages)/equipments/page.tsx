@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import EquipmentList from "@/components/equipment/cardList";
-import { MinorNav } from "@/components/equipment/minorNav";
-import add from "@/public/icons/add.svg";
+import EquipmentList from "../../../components/equipment/cardList";
+import { MinorNav } from "../../../components/equipment/minorNav";
+import add from "../../../public/icons/add.svg";
 import React from "react";
-import Layout from "@/app/(root)/layout";
-import Navbar from "@/components/Navbar";
+import Layout from "../../(root)/layout";
+import Navbar from "../../../components/Navbar";
 
 const EquipmentsPage = () => {
   // State variables

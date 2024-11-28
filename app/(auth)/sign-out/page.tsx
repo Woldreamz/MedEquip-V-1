@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
-import BaseLayout from "@/components/BaseLayout"; // Ensure this path matches your folder structure
+import BaseLayout from "../../../components/BaseLayout"; // Ensure this path matches your folder structure
 
 const Logout = () => {
   const router = useRouter(); // Initialize the router
