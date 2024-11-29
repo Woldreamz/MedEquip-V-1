@@ -8,14 +8,21 @@ export interface CardProps {
   name: string;
   category: string;
   id: number;
-  images: StaticImageData;
+  images: string | StaticImageData[];
 }
 
 const EquipmentCard = (props: CardProps) => {
   const router = useRouter();
   return (
     <div className="flex flex-col justify-around w-[23%] h-50 p-3 bg-white rounded-xl">
-      <EquipmentIcon src={shears} alt={props.name} />
+      <EquipmentIcon
+        src={
+          Array.isArray(props.images) && props.images.length > 0
+            ? String(props.images[0])
+            : "/shears.png"
+        }
+        alt={props.name}
+      />
       <p>
         <strong>Name: </strong>
         {props.name}

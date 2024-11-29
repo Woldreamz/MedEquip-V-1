@@ -3,6 +3,7 @@
 import React, { FormEvent, useState } from "react";
 import InputField from "../../../../components/ui/InputField";
 import Button from "../../../../components/ui/Button";
+import { ExDetails } from "../details/page";
 
 interface FormState {
   name: string;
@@ -14,10 +15,12 @@ interface FormState {
 }
 
 interface UpdateEquipmentProps {
-  closeModal: () => void;
+  equipment: ExDetails
+  onClose: () => void;
+  onSave: () => void;
 }
 
-const UpdateEquipment: React.FC<UpdateEquipmentProps> = ({ closeModal }) => {
+const UpdateEquipment: React.FC<UpdateEquipmentProps> = ({ onClose, onSave,  equipment }) => {
   const [tag, setTag] = useState<string[]>([]);
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -69,7 +72,7 @@ const UpdateEquipment: React.FC<UpdateEquipmentProps> = ({ closeModal }) => {
         },
       );
       if (response.ok) {
-        closeModal(); // Close the modal after a successful update
+        onClose(); // Close the modal after a successful update
       } else {
         console.error("Error updating equipment");
         alert("Failed to update equipment");
@@ -137,7 +140,7 @@ const UpdateEquipment: React.FC<UpdateEquipmentProps> = ({ closeModal }) => {
           <Button
             typeProperty="button"
             label="Cancel"
-            onClick={closeModal}
+            onClick={onClose}
             otherStyles="bg-red-500 text-white"
           />
           <Button typeProperty="submit" label="Save Changes" />

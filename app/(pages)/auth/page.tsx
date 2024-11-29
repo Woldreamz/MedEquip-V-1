@@ -54,7 +54,7 @@ const Accounts = () => {
           },
         );
         if (!response.ok)
-          throw new Error("Failed to fetch equipment", response.json);
+          throw new Error(`"Failed to fetch equipment", ${response.json()}`);
         const data = await response.json();
         console.log(data);
         setusersList(data);
@@ -79,7 +79,7 @@ const Accounts = () => {
               },
             },
           );
-          if (!res.ok) throw new Error("Failed to delete user", res.json);
+          if (!res.ok) throw new Error(`"Failed to delete user", ${res.json()}`);
           const data = await res.json();
           console.log(data);
           // setusersList((prev) => prev.filter((user) => user.id !== selectedUser));

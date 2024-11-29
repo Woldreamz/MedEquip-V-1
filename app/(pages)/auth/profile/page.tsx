@@ -7,13 +7,24 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Modal from "../../../../components/Modal";
 import Image from "next/image";
 
+export interface User {
+  id: number
+  firstname: string
+  lastname: string
+  email: string
+  phone: string
+  role: string
+  createdAt: string
+  updatedAt: string
+}
+
 const UserDetailsPage = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
-  const [user, setUser] = useState({
-    id: id,
+  const [user, setUser] = useState<User>({
+    id: Number(id),
     firstname: "",
     lastname: "",
     email: "",
@@ -73,7 +84,7 @@ const UserDetailsPage = () => {
           },
         );
         if (!response.ok)
-          throw new Error("Failed to fetch User data", response.json);
+          throw new Error(`"Failed to fetch User data", ${response.json()}`);
         const data = await response.json();
         console.log(data);
         setUser(data);
@@ -99,7 +110,7 @@ const UserDetailsPage = () => {
               },
             },
           );
-          if (!res.ok) throw new Error("Failed to delete user", res.json);
+          if (!res.ok) throw new Error(`"Failed to delete user", ${res.json()}`);
           const data = await res.json();
           console.log(data);
           router.back();

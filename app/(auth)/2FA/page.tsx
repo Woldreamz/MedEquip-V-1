@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 const AuthCode = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
-  const { VerificationStatus } = useVerification();
+  const { verificationStatus } = useVerification();
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -34,7 +34,7 @@ const AuthCode = () => {
   };
 
   const redirectTo = () => {
-    if (VerificationStatus === "success") {
+    if (verificationStatus === "success") {
       router.push("/verified");
     } else {
       alert("Please verify your email address before you continue.");

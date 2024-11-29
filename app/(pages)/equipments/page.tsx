@@ -1,12 +1,18 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import EquipmentList from "../../../components/equipment/cardList";
+import { Details } from "../../../components/equipment/forms/details";
 import { MinorNav } from "../../../components/equipment/minorNav";
 import add from "../../../public/icons/add.svg";
 import React from "react";
 import Layout from "../../(root)/layout";
 import Navbar from "../../../components/Navbar";
+import { BASE_URL } from "../../../api/base-url";
+
+interface SearchParams {
+  name: string
+  dateAdded: string | number | Date
+}
 
 const EquipmentsPage = () => {
   // State variables
@@ -25,9 +31,7 @@ const EquipmentsPage = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/equipment`
-        );
+        const response = await fetch(`${BASE_URL}/api/equipment`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch equipment");
@@ -49,38 +53,34 @@ const EquipmentsPage = () => {
   // Update the displayed equipment list when filters or sort options change
   useEffect(() => {
     const filteredAndSortedEquipment = fetchedEquipmentList
-      .filter((equipment) => {
-        // Convert fields to lowercase for case-insensitive comparison
-        const lowerQuery = searchQuery.toLowerCase();
-        const nameMatch = equipment.name.toLowerCase().includes(lowerQuery);
-        const categoryMatch = equipment.category.toLowerCase().includes(lowerQuery);
-        const tagsMatch = equipment.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQuery)
-        );
-
-        // Combine filters for search query and selected category
-        const matchesSearch = nameMatch || categoryMatch || tagsMatch;
+      .filter((equipment: Details) => {
+        // Filter by search query and category
+        const matchesSearch = equipment.name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
         const matchesCategory =
           selectedCategory === "all" || equipment.category === selectedCategory;
 
         return matchesSearch && matchesCategory;
       })
-      .sort((a, b) => {
+      .sort((a: SearchParams, b: SearchParams) => {
         // Sort based on selected option
         if (sortOption === "name_asc") {
           return a.name.localeCompare(b.name);
         } else if (sortOption === "name_desc") {
           return b.name.localeCompare(a.name);
         } else if (sortOption === "date_added_asc") {
-          return new Date(a.dateAdded) - new Date(b.dateAdded);
+          return new Date(a.dateAdded).getDate() - new Date(b.dateAdded).getDate();
         } else if (sortOption === "date_added_desc") {
-          return new Date(b.dateAdded) - new Date(a.dateAdded);
+          return new Date(b.dateAdded).getDate() - new Date(a.dateAdded).getDate();
         }
         return 0;
       });
 
     setEquipmentList(filteredAndSortedEquipment);
   }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
+
+  console.log(equipmentList);
 
   return (
     <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
@@ -120,7 +120,7 @@ const EquipmentsPage = () => {
             >
               <option value="all">All Categories</option>
               <option value="Imaging">Imaging</option>
-              <option value="Surgery">Surgery</option>
+              <option value="Surgical">Surgical</option>
               <option value="Diagnostic">Diagnostic</option>
             </select>
 
