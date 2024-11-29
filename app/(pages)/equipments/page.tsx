@@ -36,14 +36,12 @@ const EquipmentsPage = () => {
     totalNumber: 0
   });
 
-  // Fetch equipment list from the API
-  useEffect(() => {
-    const fetchEquipments = async () => {
+  const fetchEquipments = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(`${BASE_URL}/api/equipment/?category=${selectedCategory}&searchTerm=${searchQuery}&page=${equipmentList.totalPages > equipmentList.currentPage? equipmentList.currentPage + 1 : 1}`);
+        const response = await fetch(`${BASE_URL}/api/equipment/?category=${selectedCategory}&searchTerm=${searchQuery}&page=${equipmentList.totalPages > equipmentList.currentPage? Number(equipmentList.currentPage) + 1 : 1}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch equipment");
@@ -58,7 +56,8 @@ const EquipmentsPage = () => {
         setLoading(false);
       }
     };
-
+  // Fetch equipment list from the API
+  useEffect(() => {
     fetchEquipments();
   }, [selectedCategory, searchQuery]);
 
@@ -178,7 +177,7 @@ const EquipmentsPage = () => {
           <div className="flex justify-center mt-6">
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              onClick={() => alert("Pagination coming soon!")}
+              onClick={() => fetchEquipments()}
             >
               Load More
             </button>
