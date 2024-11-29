@@ -6,19 +6,18 @@ import EquipmentDetail, { Details } from "../../../../components/equipment/forms
 import Layout from "../../../(root)/layout";
 import Navbar from "../../../../components/Navbar";
 import Button from "../../../../components/ui/Button";
-// import shears from "../../../../public/Images/shears.png";
-// import Modal from "../../../../components/Modal";
+import shears from "../../../../public/Images/shears.png";
+import { BASE_URL } from "../../../../api/base-url";
+import Modal from "../../../../components/Modal";
 import UpdateEquipment from "../UpdateEquipment/page"; // Import UpdateEquipment component
 import { useSearchParams } from "next/navigation";
-import { BASE_URL } from "../../../../api/base-url";
-
 
 export interface ExDetails {
-  id: string | null
+  id: number
   name: string
   category: string
   description: string
-  tags: string[]
+  tags: string[],
   useCases: string
 }
 
@@ -26,7 +25,7 @@ const EquipmentDetails = () => {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
   const [details, setDetails] = useState<ExDetails>({
-    id: id,
+    id: Number(id),
     name: "",
     category: "",
     description: "",
@@ -36,6 +35,42 @@ const EquipmentDetails = () => {
 
   const [allImages, setAllImages] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<number | null>(
+    null,
+  );
+
+  const handleOpenModal = (equipmentId: number | null) => {
+    setSelectedEquipment(equipmentId);
+    setShowModal(true);
+  };
+
+  const handleConfirm = async () => {
+    setShowModal(false);
+    if (selectedEquipment) {
+      try {
+        const res = await fetch(
+          `${BASE_URL}/api/equipment/${selectedEquipment}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          },
+        );
+
+        if (!res.ok) throw new Error("Failed to delete equipment");
+        console.log("Equipment deleted successfully");
+        // Optionally refresh the page or redirect after deletion
+      } catch (error) {
+        console.error("Error deleting equipment:", error);
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    setShowModal(false);
+  };
 
   // Fetch equipment details
   useEffect(() => {
@@ -55,13 +90,10 @@ const EquipmentDetails = () => {
   }, [id]);
 
   // Close modal function
-  const closeModal = () => {
-    setShowUpdateModal(false);
-  };
+  const closeModal = () => setShowUpdateModal(false);
 
   // Save changes and close modal
   const handleSaveChanges = () => {
-    // Simulate saving the updated data
     console.log("Changes saved!");
     setShowUpdateModal(false);
   };
@@ -91,7 +123,6 @@ const EquipmentDetails = () => {
         <Navbar />
       </Layout>
 
-      {/* Main Content */}
       <div className="flex-1 lg:ml-[21%] p-6 space-y-6 pt-20">
         <section className="bg-white p-6 rounded-lg shadow-md">
           <div className="flex flex-row justify-between h-10 my-4">
@@ -102,9 +133,19 @@ const EquipmentDetails = () => {
               <Button
                 label="Edit"
                 typeProperty="button"
-                onClick={() => setShowUpdateModal(true)} // Open the update modal
+                onClick={() => setShowUpdateModal(true)}
               />
-              <Button label="Delete" typeProperty="button" />
+              <Button
+                label="Delete"
+                typeProperty="button"
+                onClick={() => handleOpenModal(details.id)}
+              />
+              <Modal
+                isOpen={showModal}
+                message="Are you sure you want to delete this equipment?"
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+              />
             </div>
           </div>
           <div className="flex flex-wrap gap-4 mt-4">
@@ -112,11 +153,13 @@ const EquipmentDetails = () => {
             <EquipmentImageList
               list={allImages.length == 0 ? data : allImages}
             />
+            <EquipmentImageList
+              list={allImages.length === 0 ? data : allImages}
+            />
           </div>
         </section>
       </div>
 
-      {/* Update Equipment Modal */}
       {showUpdateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
@@ -127,9 +170,9 @@ const EquipmentDetails = () => {
               &times;
             </button>
             <UpdateEquipment
-              equipment={details} // Pass current equipment details
+              equipment={details}
               onClose={closeModal}
-              onSave={handleSaveChanges} // Trigger save functionality
+              onSave={handleSaveChanges}
             />
           </div>
         </div>

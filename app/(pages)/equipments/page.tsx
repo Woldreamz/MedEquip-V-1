@@ -39,7 +39,7 @@ const EquipmentsPage = () => {
 
         const data = await response.json();
         setFetchedEquipmentList(data.data); // Store fetched data
-        setEquipmentList(data); // Initialize display list with fetched data
+        setEquipmentList(data.data); // Initialize display list with fetched data
       } catch (error: any) {
         setError(error.message || "An error occurred");
       } finally {
@@ -54,10 +54,13 @@ const EquipmentsPage = () => {
   useEffect(() => {
     const filteredAndSortedEquipment = fetchedEquipmentList
       .filter((equipment: Details) => {
-        // Filter by search query and category
-        const matchesSearch = equipment.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        // Filter by search query, category, and keywords
+        const matchesSearch =
+          equipment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (equipment.keywords &&
+            equipment.keywords.some((keyword: string) =>
+              keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+            ));
         const matchesCategory =
           selectedCategory === "all" || equipment.category === selectedCategory;
 
@@ -79,6 +82,8 @@ const EquipmentsPage = () => {
 
     setEquipmentList(filteredAndSortedEquipment);
   }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
+
+  console.log(equipmentList);
 
   console.log(equipmentList);
 
@@ -120,7 +125,7 @@ const EquipmentsPage = () => {
             >
               <option value="all">All Categories</option>
               <option value="Imaging">Imaging</option>
-              <option value="Surgical">Surgical</option>
+              <option value="Surgery">Surgery</option>
               <option value="Diagnostic">Diagnostic</option>
             </select>
 
