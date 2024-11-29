@@ -10,8 +10,8 @@ import Navbar from "../../../components/Navbar";
 import { BASE_URL } from "../../../api/base-url";
 
 interface SearchParams {
-  name: string
-  dateAdded: string | number | Date
+  name: string;
+  dateAdded: string | number | Date;
 }
 
 const EquipmentsPage = () => {
@@ -54,10 +54,13 @@ const EquipmentsPage = () => {
   useEffect(() => {
     const filteredAndSortedEquipment = fetchedEquipmentList
       .filter((equipment: Details) => {
-        // Filter by search query and category
-        const matchesSearch = equipment.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        // Filter by search query, category, and keywords
+        const matchesSearch =
+          equipment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (equipment.keywords &&
+            equipment.keywords.some((keyword: string) =>
+              keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+            ));
         const matchesCategory =
           selectedCategory === "all" || equipment.category === selectedCategory;
 
@@ -70,9 +73,13 @@ const EquipmentsPage = () => {
         } else if (sortOption === "name_desc") {
           return b.name.localeCompare(a.name);
         } else if (sortOption === "date_added_asc") {
-          return new Date(a.dateAdded).getDate() - new Date(b.dateAdded).getDate();
+          return (
+            new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
+          );
         } else if (sortOption === "date_added_desc") {
-          return new Date(b.dateAdded).getDate() - new Date(a.dateAdded).getDate();
+          return (
+            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
+          );
         }
         return 0;
       });
@@ -120,7 +127,7 @@ const EquipmentsPage = () => {
             >
               <option value="all">All Categories</option>
               <option value="Imaging">Imaging</option>
-              <option value="Surgical">Surgical</option>
+              <option value="Surgery">Surgery</option>
               <option value="Diagnostic">Diagnostic</option>
             </select>
 
