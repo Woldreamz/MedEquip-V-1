@@ -72,7 +72,7 @@ const EquipmentDetails = () => {
     keywords: [details.tags],
   };
 
-  console.log(allImages);
+  // console.log(allImages);
 
   return (
     <div className="relative flex bg-gray-100 flex-col lg:flex-row min-h-screen">
