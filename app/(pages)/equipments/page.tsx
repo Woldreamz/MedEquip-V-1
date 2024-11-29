@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import EquipmentList from "../../../components/equipment/cardList";
+import { CardProps } from "../../../components/equipment/card";
 import { Details } from "../../../components/equipment/forms/details";
 import { MinorNav } from "../../../components/equipment/minorNav";
 import add from "../../../public/icons/add.svg";
@@ -14,6 +15,12 @@ interface SearchParams {
   dateAdded: string | number | Date
 }
 
+interface EquipmentResponse {
+  data: CardProps[]
+  currentPage: number
+  totalPages: number 
+  totalNumber: number
+}
 const EquipmentsPage = () => {
   // State variables
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,7 +29,12 @@ const EquipmentsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetchedEquipmentList, setFetchedEquipmentList] = useState([]);
-  const [equipmentList, setEquipmentList] = useState([]);
+  const [equipmentList, setEquipmentList] = useState<EquipmentResponse>({
+    data: [],
+    currentPage: 0,
+    totalPages: 0,
+    totalNumber: 0
+  });
 
   // Fetch equipment list from the API
   useEffect(() => {
@@ -31,15 +43,15 @@ const EquipmentsPage = () => {
       setError(null);
 
       try {
-        const response = await fetch(`${BASE_URL}/api/equipment`);
+        const response = await fetch(`${BASE_URL}/api/equipment/?category=${selectedCategory}&searchTerm=${searchQuery}&page=${equipmentList.totalPages > equipmentList.currentPage? equipmentList.currentPage + 1 : 1}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch equipment");
         }
 
         const data = await response.json();
-        setFetchedEquipmentList(data.data); // Store fetched data
-        setEquipmentList(data.data); // Initialize display list with fetched data
+        setFetchedEquipmentList(data); // Store fetched data
+        setEquipmentList(data); // Initialize display list with fetched data
       } catch (error: any) {
         setError(error.message || "An error occurred");
       } finally {
@@ -51,37 +63,37 @@ const EquipmentsPage = () => {
   }, []);
 
   // Update the displayed equipment list when filters or sort options change
-  useEffect(() => {
-    const filteredAndSortedEquipment = fetchedEquipmentList
-      .filter((equipment: Details) => {
-        // Filter by search query, category, and keywords
-        const matchesSearch =
-          equipment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (equipment.keywords &&
-            equipment.keywords.some((keyword: string) =>
-              keyword.toLowerCase().includes(searchQuery.toLowerCase()),
-            ));
-        const matchesCategory =
-          selectedCategory === "all" || equipment.category === selectedCategory;
+  // useEffect(() => {
+  //   const filteredAndSortedEquipment = fetchedEquipmentList
+  //     .filter((equipment: Details) => {
+  //       // Filter by search query, category, and keywords
+  //       const matchesSearch =
+  //         equipment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //         (equipment.keywords &&
+  //           equipment.keywords.some((keyword: string) =>
+  //             keyword.toLowerCase().includes(searchQuery.toLowerCase()),
+  //           ));
+  //       const matchesCategory =
+  //         selectedCategory === "all" || equipment.category === selectedCategory;
 
-        return matchesSearch && matchesCategory;
-      })
-      .sort((a: SearchParams, b: SearchParams) => {
-        // Sort based on selected option
-        if (sortOption === "name_asc") {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === "name_desc") {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === "date_added_asc") {
-          return new Date(a.dateAdded).getDate() - new Date(b.dateAdded).getDate();
-        } else if (sortOption === "date_added_desc") {
-          return new Date(b.dateAdded).getDate() - new Date(a.dateAdded).getDate();
-        }
-        return 0;
-      });
+  //       return matchesSearch && matchesCategory;
+  //     })
+  //     .sort((a: SearchParams, b: SearchParams) => {
+  //       // Sort based on selected option
+  //       if (sortOption === "name_asc") {
+  //         return a.name.localeCompare(b.name);
+  //       } else if (sortOption === "name_desc") {
+  //         return b.name.localeCompare(a.name);
+  //       } else if (sortOption === "date_added_asc") {
+  //         return new Date(a.dateAdded).getDate() - new Date(b.dateAdded).getDate();
+  //       } else if (sortOption === "date_added_desc") {
+  //         return new Date(b.dateAdded).getDate() - new Date(a.dateAdded).getDate();
+  //       }
+  //       return 0;
+  //     });
 
-    setEquipmentList(filteredAndSortedEquipment);
-  }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
+  //   setEquipmentList(filteredAndSortedEquipment);
+  // }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
 
   console.log(equipmentList);
 
@@ -158,7 +170,7 @@ const EquipmentsPage = () => {
             </div>
           ) : (
             <div className="flex flex-wrap gap-4 mt-4">
-              <EquipmentList data={equipmentList} />
+              <EquipmentList data={equipmentList.data} />
             </div>
           )}
 
