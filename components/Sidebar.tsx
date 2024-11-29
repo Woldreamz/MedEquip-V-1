@@ -57,11 +57,11 @@ const Sidebar = ({ className }: SidebarProps) => {
       icon: RiFirstAidKitLine,
       subItems: [
         { name: "Equipments", href: "/equipments", icon: HiOutlineScissors },
-        {
-          name: "Equipment Details",
-          href: "/equipments/details",
-          icon: HiTrendingUp,
-        },
+        // {
+        //   name: "Equipment Details",
+        //   href: "/equipments/details",
+        //   icon: HiTrendingUp,
+        // },
         {
           name: "Basic Information",
           href: "/equipments/basic_information",

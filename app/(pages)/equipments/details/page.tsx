@@ -36,8 +36,8 @@ const EquipmentDetails = () => {
         const data = await response.json();
         setDetails(data);
         setAllImages(data.images);
-      } catch (error) {
-        console.error(error);
+      } catch (error: any) {
+        console.log(error); //render this error in an error pop up if it still doesn't load
       }
     };
 
