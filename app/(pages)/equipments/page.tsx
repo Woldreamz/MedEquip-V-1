@@ -26,7 +26,7 @@ const EquipmentsPage = () => {
 
       try {
         const response = await fetch(
-          `https://medequip-api.vercel.app/api/equipment`,
+          `https://medequip-api.vercel.app/api/equipment`
         );
 
         if (!response.ok) {
@@ -75,6 +75,8 @@ const EquipmentsPage = () => {
 
     setEquipmentList(filteredAndSortedEquipment);
   }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
+
+  console.log(equipmentList);
 
   return (
     <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
