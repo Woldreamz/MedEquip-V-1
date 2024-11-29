@@ -38,7 +38,7 @@ const EquipmentsPage = () => {
         }
 
         const data = await response.json();
-        setFetchedEquipmentList(data); // Store fetched data
+        setFetchedEquipmentList(data.data); // Store fetched data
         setEquipmentList(data); // Initialize display list with fetched data
       } catch (error: any) {
         setError(error.message || "An error occurred");
