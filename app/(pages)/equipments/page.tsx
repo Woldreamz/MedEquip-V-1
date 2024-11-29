@@ -60,7 +60,7 @@ const EquipmentsPage = () => {
     };
 
     fetchEquipments();
-  }, []);
+  }, [selectedCategory, searchQuery]);
 
   // Update the displayed equipment list when filters or sort options change
   // useEffect(() => {
