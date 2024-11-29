@@ -7,7 +7,6 @@ import Layout from "../../../(root)/layout";
 import Navbar from "../../../../components/Navbar";
 import Button from "../../../../components/ui/Button";
 import shears from "../../../../public/Images/shears.png";
-import Modal from "../../../../components/Modal";
 import UpdateEquipment from "../UpdateEquipment/page"; // Import UpdateEquipment component
 import { useSearchParams } from "next/navigation";
 

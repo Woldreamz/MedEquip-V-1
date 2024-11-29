@@ -26,7 +26,7 @@ const EquipmentsPage = () => {
 
       try {
         const response = await fetch(
-          `https://medequip-api.vercel.app/api/equipment`,
+          `https://medequip-api.vercel.app/api/equipment`
         );
 
         if (!response.ok) {
@@ -50,10 +50,16 @@ const EquipmentsPage = () => {
   useEffect(() => {
     const filteredAndSortedEquipment = fetchedEquipmentList
       .filter((equipment) => {
-        // Filter by search query and category
-        const matchesSearch = equipment.name
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+        // Convert fields to lowercase for case-insensitive comparison
+        const lowerQuery = searchQuery.toLowerCase();
+        const nameMatch = equipment.name.toLowerCase().includes(lowerQuery);
+        const categoryMatch = equipment.category.toLowerCase().includes(lowerQuery);
+        const tagsMatch = equipment.tags.some((tag) =>
+          tag.toLowerCase().includes(lowerQuery)
+        );
+
+        // Combine filters for search query and selected category
+        const matchesSearch = nameMatch || categoryMatch || tagsMatch;
         const matchesCategory =
           selectedCategory === "all" || equipment.category === selectedCategory;
 
@@ -114,7 +120,7 @@ const EquipmentsPage = () => {
             >
               <option value="all">All Categories</option>
               <option value="Imaging">Imaging</option>
-              <option value="Surgical">Surgical</option>
+              <option value="Surgery">Surgery</option>
               <option value="Diagnostic">Diagnostic</option>
             </select>
 
