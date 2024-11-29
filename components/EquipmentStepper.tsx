@@ -8,7 +8,7 @@ interface FormState {
   name: string;
   description: string;
   category: string;
-  image: File | string;
+  files: File[] | string[];
   tags: string[];
   useCases: string;
 }
@@ -69,7 +69,7 @@ const EquipmentStepper = () => {
     name: "",
     description: "",
     category: "",
-    image: "",
+    files: [],
     tags: [],
     useCases: "",
   });
@@ -83,14 +83,16 @@ const EquipmentStepper = () => {
       setForm({ ...form, tags: tagsArray });
     } else if (name === "image" && type === 'file') {
       const target = event.target as HTMLInputElement
-      // const file = files[0];
-      if(target.files &&  target.files.length > 0){
-        setForm({ ...form, image: target.files[0] });
+      const files = target.files;
+      if(files &&  files.length > 0){
+        const imageURL = Array.from(files).map(file => URL.createObjectURL(file))
+        console.log("filee", imageURL)
+        setForm({ ...form, files: [...imageURL] });
       }
     } else {
       setForm({ ...form, [name]: value });
     }
-    console.log(form);
+    console.log(form, 'lll:', value);
   }
 
   // Modal state for success/cancel
@@ -129,12 +131,12 @@ const EquipmentStepper = () => {
     // formData.append("tags", JSON.stringify(form.tags));
     form.tags.forEach((tag) => formData.append("tags[]", tag));
     formData.append("useCases", form.useCases);
-
-    // Append the file (if any)
-    if (form.image instanceof File) {
-      formData.append("files", form.image);
+    form.files.forEach((blob, index) => {
+      formData.append('files', blob);
+    });
+    for(const[ key, value ] of formData.entries()){
+      console.log(key, value);
     }
-    console.log(formData);
 
     try {
       const response = await fetch(
@@ -336,14 +338,18 @@ const EquipmentStepper = () => {
               <label className="block border-2 border-dashed border-gray-300 p-4 rounded-md cursor-pointer">
                 <input
                   type="file"
-                  onChange={(e) => {
-                    const file = e.target.files ? e.target.files[0] : null; // Check if files is not null
-                    if (file) {
-                      const imageURL = URL.createObjectURL(file);
-                      setImages([...images, imageURL]);
-                    }
-                  }}
+                  name="image"
+                  onChange={handleChange
+                  //   {
+                  //   const file = e.target.files ? e.target.files[0] : null; // Check if files is not null
+                  //   if (file) {
+                  //     const imageURL = URL.createObjectURL(file);
+                  //     setImages([...images, imageURL]);
+                  //   }
+                  // }
+                }
                   className="hidden"
+                  multiple
                 />
 
                 <p className="text-gray-500 text-center">
