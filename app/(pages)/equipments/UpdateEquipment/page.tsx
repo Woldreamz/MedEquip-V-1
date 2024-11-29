@@ -1,8 +1,8 @@
 "use client";
+
 import React, { FormEvent, useState } from "react";
 import InputField from "../../../../components/ui/InputField";
 import Button from "../../../../components/ui/Button";
-import { useSearchParams, useRouter } from "next/navigation";
 
 interface FormState {
   name: string;
@@ -13,10 +13,11 @@ interface FormState {
   useCases: string;
 }
 
-const UpdateEquipment = () => {
-  const searchParams = useSearchParams();
-  const id = searchParams?.get("id");
-  console.log(id);
+interface UpdateEquipmentProps {
+  closeModal: () => void;
+}
+
+const UpdateEquipment: React.FC<UpdateEquipmentProps> = ({ closeModal }) => {
   const [tag, setTag] = useState<string[]>([]);
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -32,38 +33,32 @@ const UpdateEquipment = () => {
 
     if (name === "tags") {
       const tagsArray = value.split(",").map((tag) => tag.trim());
-      setTag(tagsArray); // Fix: directly set the array instead of using spread operator
+      setTag(tagsArray);
       setForm({ ...form, tags: tagsArray });
     } else if (name === "image" && files && files.length > 0) {
-      // const file = files[0];
       setForm({ ...form, image: files[0] });
     } else {
       setForm({ ...form, [name]: value });
     }
-    // console.log(form);
   }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
 
-    // Append all form fields to FormData
     formData.append("name", form.name);
     formData.append("description", form.description);
     formData.append("category", form.category);
-    // formData.append("tags", JSON.stringify(form.tags));
     form.tags.forEach((tag) => formData.append("tags[]", tag));
     formData.append("useCases", form.useCases);
 
-    // Append the file (if any)
     if (form.image instanceof File) {
       formData.append("files", form.image);
     }
-    console.log(formData);
 
     try {
       const response = await fetch(
-        `https://medequip-api.vercel.app/api/equipment/${id}`,
+        `https://medequip-api.vercel.app/api/equipment/${form.name}`,
         {
           method: "PUT",
           headers: {
@@ -74,118 +69,81 @@ const UpdateEquipment = () => {
         },
       );
       if (response.ok) {
-        //redirect to the email verification page after sucessfull submission
-        const responseData = await response.json();
-        console.log(responseData);
+        closeModal(); // Close the modal after a successful update
       } else {
-        const errorData = await response.json();
-        console.error("Error: Failed to submit the form", errorData);
+        console.error("Error updating equipment");
         alert("Failed to update equipment");
       }
     } catch (error) {
-      console.error("An error occured:", error);
+      console.error("An error occurred:", error);
     }
   };
 
   return (
-    <>
-      <div className="flex justify-center py-20">
-        <div className="lg:w-[668px] md:w-[468px] py-8 px-8 bg-white rounded-[40px]">
-          <h2 className="text-center lg:text-[28px] md:text-[28px] sm:text-[28px] text-[23px]">
-            Update an Equipment
-          </h2>
-
-          <p className="text-center lg:text-[16px] md:text-[16px] sm:text-[16px] text-[13px] pb-10">
-            Fill out the form below to update equipment
-          </p>
-
-          <form className="text-[13px]">
-            <InputField
-              type="text"
-              label="name"
-              name="name"
-              className="mb-3 text-xs"
-              placeholder="name"
-              required
-              value={form.name}
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <InputField
-              type="text"
-              label="description"
-              name="description"
-              className="mb-3 text-xs"
-              placeholder="description"
-              required
-              value={form.description}
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <InputField
-              type="text"
-              label="category"
-              name="category"
-              className="mb-3 text-xs"
-              placeholder="category"
-              required
-              value={form.category}
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <InputField
-              type="file"
-              label="image"
-              name="image"
-              className="mb-3 text-xs"
-              placeholder="image"
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <InputField
-              type="text"
-              label="tags"
-              name="tags"
-              className="mb-3 text-xs"
-              placeholder="tags"
-              value={tag.join(",")}
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <InputField
-              type="text"
-              label="Use cases"
-              name="useCases"
-              className="mb-3 text-xs"
-              placeholder="Use cases"
-              minLength={8}
-              required
-              value={form.useCases}
-              onChange={handleChange}
-              otherStyles=""
-              itemRef={null}
-            />
-
-            <Button
-              typeProperty="submit"
-              label="Create Equipment"
-              otherStyles="w-full"
-              onClick={handleSubmit}
-            />
-          </form>
+    <div className="flex flex-col items-center py-8 px-8 bg-white rounded-[40px]">
+      <h2 className="text-center text-2xl mb-4">Update Equipment</h2>
+      <form className="w-full text-sm" onSubmit={handleSubmit}>
+        <InputField
+          type="text"
+          label="Name"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Name"
+          required
+        />
+        <InputField
+          type="text"
+          label="Description"
+          name="description"
+          value={form.description}
+          onChange={handleChange}
+          placeholder="Description"
+          required
+        />
+        <InputField
+          type="text"
+          label="Category"
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          placeholder="Category"
+          required
+        />
+        <InputField
+          type="file"
+          label="Image"
+          name="image"
+          onChange={handleChange}
+        />
+        <InputField
+          type="text"
+          label="Tags"
+          name="tags"
+          value={tag.join(",")}
+          onChange={handleChange}
+          placeholder="Tags (comma-separated)"
+        />
+        <InputField
+          type="text"
+          label="Use Cases"
+          name="useCases"
+          value={form.useCases}
+          onChange={handleChange}
+          placeholder="Use Cases"
+          required
+        />
+        <div className="flex justify-between mt-4">
+          <Button
+            typeProperty="button"
+            label="Cancel"
+            onClick={closeModal}
+            otherStyles="bg-red-500 text-white"
+          />
+          <Button typeProperty="submit" label="Save Changes" />
         </div>
-      </div>
-    </>
+      </form>
+    </div>
   );
 };
 

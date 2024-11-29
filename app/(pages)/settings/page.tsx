@@ -25,8 +25,34 @@ const Settings = () => {
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfile((prev) => ({ ...prev, [name]: value }));
+    setProfile({ ...profile, [name]: value });
+    console.log(profile);
   };
+  // const handleSubmit = async () => {
+  //   try {
+  //     const response = await fetch(`https://medequip-api.vercel.app/api/users/${profile.id}`,{
+  //       method: 'PUT',
+  //       headers: {
+  //         'Accept': 'application/json',
+  //         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+  //       },
+  //       body: JSON.stringify(profile),
+  //     });
+  //     if (response.ok) {
+  //       //redirect to the email verification page after sucessfull submission
+  //       const responseData = await response.json();
+  //       console.log(responseData);
+  //       alert("User updated  successfully");
+  //     }else {
+  //       const errorData = await response.json();
+  //       console.error("Error: Failed to submit the form", errorData);
+  //       alert("Failed to update the user information");
+  //     }
+  //   } catch (error) {
+  //     console.error("An error occured:", error);
+  //   }
+
+  // }
 
   const togglePreference = (key: "notifications" | "darkMode") => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -63,7 +89,7 @@ const Settings = () => {
                   </label>
                   <input
                     type="text"
-                    name="name"
+                    name="firstname"
                     value={profile.firstname}
                     onChange={handleProfileChange}
                     className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
@@ -75,7 +101,7 @@ const Settings = () => {
                   </label>
                   <input
                     type="text"
-                    name="name"
+                    name="lastname"
                     value={profile.lastname}
                     onChange={handleProfileChange}
                     className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"

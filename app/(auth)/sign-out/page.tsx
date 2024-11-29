@@ -9,6 +9,8 @@ const Logout = () => {
   const handleLogout = () => {
     // Perform any necessary logout logic here (e.g., clearing tokens, sessions, etc.)
     console.log("User logged out");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("user"); // Remove the user data from local storage
     // Redirect to the Sign-In page
     router.push("/sign-in");
   };
