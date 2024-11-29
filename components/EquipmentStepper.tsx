@@ -61,9 +61,9 @@ const EquipmentStepper = () => {
   const [specifications, setSpecifications] = useState<Specifications>({});
   const [keywords, setKeywords] = useState(["Surgery"]);
   const [newKeyword, setNewKeyword] = useState("");
-  const [useCases, setUseCases] = useState([]);
-  const [newUseCase, setNewUseCase] = useState("");
-  const [images, setImages] = useState([]);
+  const [useCases, setUseCases] = useState<string[]>([]);
+  const [newUseCase, setNewUseCase] = useState<string>("");
+  const [images, setImages] = useState<string[]>([]);
   const [tag, setTag] = useState<string[]>([]);
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -74,16 +74,19 @@ const EquipmentStepper = () => {
     useCases: "",
   });
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value, files } = event.target;
+  function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
+    const { name, value, type } = event.target;
 
     if (name === "tags") {
       const tagsArray = value.split(",").map((tag) => tag.trim());
       setTag(tagsArray); // Fix: directly set the array instead of using spread operator
       setForm({ ...form, tags: tagsArray });
-    } else if (name === "image" && files && files.length > 0) {
+    } else if (name === "image" && type === 'file') {
+      const target = event.target as HTMLInputElement
       // const file = files[0];
-      setForm({ ...form, image: files[0] });
+      if(target.files &&  target.files.length > 0){
+        setForm({ ...form, image: target.files[0] });
+      }
     } else {
       setForm({ ...form, [name]: value });
     }
