@@ -2,20 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { EquipmentImageList } from "../../../../components/equipment/image/imageCollection";
-import EquipmentDetail from "../../../../components/equipment/forms/details";
+import EquipmentDetail, { Details } from "../../../../components/equipment/forms/details";
 import Layout from "../../../(root)/layout";
 import Navbar from "../../../../components/Navbar";
 import Button from "../../../../components/ui/Button";
-import shears from "../../../../public/Images/shears.png";
-import Modal from "../../../../components/Modal";
+// import shears from "../../../../public/Images/shears.png";
+// import Modal from "../../../../components/Modal";
 import UpdateEquipment from "../UpdateEquipment/page"; // Import UpdateEquipment component
 import { useSearchParams } from "next/navigation";
 import { BASE_URL } from "../../../../api/base-url";
 
+
+export interface ExDetails {
+  id: string | null
+  name: string
+  category: string
+  description: string
+  tags: string[]
+  useCases: string
+}
+
 const EquipmentDetails = () => {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
-  const [details, setDetails] = useState({
+  const [details, setDetails] = useState<ExDetails>({
     id: id,
     name: "",
     category: "",
@@ -61,7 +71,7 @@ const EquipmentDetails = () => {
     { src: "/shears.png", alt: "shears" },
     { src: "/shears.png", alt: "shears" },
   ];
-  const detail = {
+  const detail: Details = {
     name: details.name,
     category: details.category,
     description: details.description,
@@ -69,7 +79,7 @@ const EquipmentDetails = () => {
     gender: "Female",
     length: "15cm",
     width: "30cm",
-    keywords: [details.tags],
+    keywords: [...details.tags],
   };
 
   // console.log(allImages);

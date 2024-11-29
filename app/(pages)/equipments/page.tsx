@@ -1,13 +1,18 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import EquipmentList from "../../../components/equipment/cardList";
+import { Details } from "../../../components/equipment/forms/details";
 import { MinorNav } from "../../../components/equipment/minorNav";
 import add from "../../../public/icons/add.svg";
 import React from "react";
 import Layout from "../../(root)/layout";
 import Navbar from "../../../components/Navbar";
 import { BASE_URL } from "../../../api/base-url";
+
+interface SearchParams {
+  name: string
+  dateAdded: string | number | Date
+}
 
 const EquipmentsPage = () => {
   // State variables
@@ -48,7 +53,7 @@ const EquipmentsPage = () => {
   // Update the displayed equipment list when filters or sort options change
   useEffect(() => {
     const filteredAndSortedEquipment = fetchedEquipmentList
-      .filter((equipment) => {
+      .filter((equipment: Details) => {
         // Filter by search query and category
         const matchesSearch = equipment.name
           .toLowerCase()
@@ -58,16 +63,16 @@ const EquipmentsPage = () => {
 
         return matchesSearch && matchesCategory;
       })
-      .sort((a, b) => {
+      .sort((a: SearchParams, b: SearchParams) => {
         // Sort based on selected option
         if (sortOption === "name_asc") {
           return a.name.localeCompare(b.name);
         } else if (sortOption === "name_desc") {
           return b.name.localeCompare(a.name);
         } else if (sortOption === "date_added_asc") {
-          return new Date(a.dateAdded) - new Date(b.dateAdded);
+          return new Date(a.dateAdded).getDate() - new Date(b.dateAdded).getDate();
         } else if (sortOption === "date_added_desc") {
-          return new Date(b.dateAdded) - new Date(a.dateAdded);
+          return new Date(b.dateAdded).getDate() - new Date(a.dateAdded).getDate();
         }
         return 0;
       });

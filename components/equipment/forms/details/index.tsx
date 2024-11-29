@@ -3,7 +3,7 @@ import { FormGroup } from '../formGroup'
 import { InputBtn } from '../input'
 import {FormEvent, useState} from 'react';
 
-interface Details {
+export interface Details {
   name: string
   category: string
   description: string
@@ -31,7 +31,7 @@ const EquipmentDetail = (props: Details) => {
   //     keywords: prevData.keywords.filter(name => name !== keyword)
   // }));
   // };
-
+  const [tag, setTag] = useState<string[]>([]);
   const [form, setForm] = useState<Details>({
     name: '',
     description: '',
