@@ -7,6 +7,7 @@ import add from "../../../public/icons/add.svg";
 import React from "react";
 import Layout from "../../(root)/layout";
 import Navbar from "../../../components/Navbar";
+import { BASE_URL } from "../../../api/base-url";
 
 const EquipmentsPage = () => {
   // State variables
@@ -25,9 +26,7 @@ const EquipmentsPage = () => {
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/equipment`
-        );
+        const response = await fetch(`${BASE_URL}/api/equipment`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch equipment");

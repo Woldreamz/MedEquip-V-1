@@ -10,6 +10,7 @@ import shears from "../../../../public/Images/shears.png";
 import Modal from "../../../../components/Modal";
 import UpdateEquipment from "../UpdateEquipment/page"; // Import UpdateEquipment component
 import { useSearchParams } from "next/navigation";
+import { BASE_URL } from "../../../../api/base-url";
 
 const EquipmentDetails = () => {
   const searchParams = useSearchParams();
@@ -22,18 +23,19 @@ const EquipmentDetails = () => {
     tags: [],
     useCases: "",
   });
+
+  const [allImages, setAllImages] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   // Fetch equipment details
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/equipment/${id}`,
-        );
+        const response = await fetch(`${BASE_URL}/api/equipment/${id}`);
         if (!response.ok) throw new Error("Failed to fetch equipment");
         const data = await response.json();
         setDetails(data);
+        setAllImages(data.images);
       } catch (error) {
         console.error(error);
       }
@@ -55,9 +57,9 @@ const EquipmentDetails = () => {
   };
 
   const data = [
-    { src: shears, alt: "shears" },
-    { src: shears, alt: "shears" },
-    { src: shears, alt: "shears" },
+    { src: "/shears.png", alt: "shears" },
+    { src: "/shears.png", alt: "shears" },
+    { src: "/shears.png", alt: "shears" },
   ];
   const detail = {
     name: details.name,
@@ -69,6 +71,8 @@ const EquipmentDetails = () => {
     width: "30cm",
     keywords: [details.tags],
   };
+
+  console.log(allImages);
 
   return (
     <div className="relative flex bg-gray-100 flex-col lg:flex-row min-h-screen">
@@ -95,7 +99,9 @@ const EquipmentDetails = () => {
           </div>
           <div className="flex flex-wrap gap-4 mt-4">
             <EquipmentDetail {...detail} />
-            <EquipmentImageList list={data} />
+            <EquipmentImageList
+              list={allImages.length == 0 ? data : allImages}
+            />
           </div>
         </section>
       </div>

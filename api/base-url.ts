@@ -1,1 +1,1 @@
-export const BASE_URL = "https://medequip-api.vercel.app/";
+export const BASE_URL = "https://medequip-api.vercel.app";
