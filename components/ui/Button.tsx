@@ -6,9 +6,9 @@ interface ButtonProps {
   type?: "primary" | "critical";
   icon?: React.ReactNode; // icon can be a React node
   label: string;
-  onClick?: (e: any) => void; // a function with no arguments and no return value
+  onClick: () => void; // a function with no arguments and no return value
   typeProperty: any;
-  otherStyles?: string;
+  otherStyles: string;
 }
 
 const Button = ({ type = "primary", icon, label, onClick, typeProperty, otherStyles }: ButtonProps) => {

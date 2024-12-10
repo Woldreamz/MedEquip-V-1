@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react'
+import Image, {StaticImageData} from 'next/image'
+
 
 export interface IconProps {
-  src: string;
-  alt: string;
+    src: string; 
+    alt: string;
 }
 
-export const EquipmentIcon = (props: IconProps) => {
+export const EquipmentIcon = (props:IconProps) => {
   return (
-    <img
-      src={props.src}
-      alt={props.alt}
-      style={{ height: 200, width: 230, objectFit: "cover" }}
-    />
-  );
-};
+    // <div className='rounded border-teal w-75 w-50 p-1'>
+        <Image height={300} width={230} src={props.src} alt={props.alt} />
+    // </div>
+  )
+}

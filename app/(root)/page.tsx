@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Layout from "./layout";
-import Navbar from "../../components/Navbar";
+import Navbar from "@/components/Navbar";
 // import Sidebar from "@/components/Sidebar";
 import Accounts from "../(pages)/auth/page";
 import AllUsers from "../(pages)/auth/all-users/page";
 import UserProfile from "../(pages)/auth/profile/page";
-import DashboardContent from "../../components/Dashboardcontent"; // Importing DashboardContent
-import withAuth from "../../hoc/WithAuth";
+import DashboardContent from "@/components/Dashboardcontent"; // Importing DashboardContent
+import withAuth from "@/hoc/WithAuth";
+import Sidebar from "@/components/Sidebar";
 
 // Define SubItem type
 type SubItem = {
@@ -18,7 +19,7 @@ type SubItem = {
 function Home() {
   const [activeNav, setActiveNav] = useState<string>("dashboard");
   const [accountsSubNav, setAccountsSubNav] = useState<SubItem[]>([]);
-  const [showSidebar, setShowSidebar] = useState(false);
+  // const [showSidebar, setShowSidebar] = useState(false);
 
   useEffect(() => {
     // Reset sub-navigation when switching to the 'dashboard' tab
@@ -30,11 +31,11 @@ function Home() {
   return (
     <div className="fixed bg-white relative flex flex-col md:flex-row h-screen">
       {/* Sidebar (uncomment when Sidebar is ready for use) */}
-      {/* <Sidebar
+      <Sidebar
         activeNav={activeNav}
         setActiveNav={setActiveNav}
         setAccountsSubNav={setAccountsSubNav}
-      /> */}
+      />
       <Navbar />
       {/* Main Content */}
       {/* Dashboard Content */}

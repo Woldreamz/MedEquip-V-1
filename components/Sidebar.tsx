@@ -17,11 +17,11 @@ import { RiFirstAidKitLine } from "react-icons/ri";
 import { GoGear } from "react-icons/go";
 import { BiLogOut } from "react-icons/bi";
 
-interface SidebarProps {
-  className?: string;
-}
+// interface SidebarProps {
+//   className?: string;
+// }
 
-const Sidebar = ({ className }: SidebarProps) => {
+const Sidebar = () => {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState<Record<string, boolean>>({
     Accounts: false,
@@ -57,11 +57,11 @@ const Sidebar = ({ className }: SidebarProps) => {
       icon: RiFirstAidKitLine,
       subItems: [
         { name: "Equipments", href: "/equipments", icon: HiOutlineScissors },
-        // {
-        //   name: "Equipment Details",
-        //   href: "/equipments/details",
-        //   icon: HiTrendingUp,
-        // },
+        {
+          name: "Equipment Details",
+          href: "/equipments/details",
+          icon: HiTrendingUp,
+        },
         {
           name: "Basic Information",
           href: "/equipments/basic_information",

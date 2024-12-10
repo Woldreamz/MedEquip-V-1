@@ -1,7 +1,7 @@
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
 import React from "react";
-import { VerificationProvider } from "../context/VerificationContext";
+import { VerificationProvider } from "@/context/VerificationContext";
 import Head from "next/head";
 
 // Load Open Sans font

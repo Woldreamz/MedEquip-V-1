@@ -1,37 +1,27 @@
 "use client";
 import { useState, useEffect, ChangeEvent } from "react";
-import Layout from "../../../(root)/layout";
-import Navbar from "../../../../components/Navbar";
-import Breadcrumbs from "../../../../components/ui/BreadCrumbs";
+import Layout from "@/app/(root)/layout";
+import Navbar from "@/components/Navbar";
+import Breadcrumbs from "@/components/ui/BreadCrumbs";
 import { useSearchParams, useRouter } from "next/navigation";
-import Modal from "../../../../components/Modal";
-import Image from "next/image";
-
-export interface User {
-  id: number
-  firstname: string
-  lastname: string
-  email: string
-  phone: string
-  role: string
-  createdAt: string
-  updatedAt: string
-}
+import Modal from '@/components/Modal';
 
 const UserDetailsPage = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const id = searchParams?.get("id");
-  const [user, setUser] = useState<User>({
-    id: Number(id),
-    firstname: "",
-    lastname: "",
-    email: "",
-    phone: "",
-    role: "",
-    createdAt: "",
-    updatedAt: "",
+  const id = searchParams?.get('id');
+  const [user, setUser] = useState({
+    id: id,
+    firstname: '',
+    lastname: '',
+    email: '',
+    phone: '',
+    occupation: '',
+    address: '',
+    role: '',
+    createdAt: '',
+    updatedAt: '',
   });
   const [showModal, setShowModal] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
@@ -71,20 +61,18 @@ const UserDetailsPage = () => {
     setShowModal(false);
   };
 
-  useEffect(() => {
+  useEffect(() =>{
     const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/users/${id}`,
+        const response = await fetch(`https://medequip-api.vercel.app/api/users/${id}`,
           {
-            method: "GET",
+            method: 'GET',
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             },
-          },
+          }
         );
-        if (!response.ok)
-          throw new Error(`"Failed to fetch User data", ${response.json()}`);
+        if (!response.ok) throw new Error('Failed to fetch User data', response.json);
         const data = await response.json();
         console.log(data);
         setUser(data);
@@ -95,22 +83,21 @@ const UserDetailsPage = () => {
     };
 
     fetchUsers();
-  }, [id]);
+  },[id, user]);
 
   useEffect(() => {
     const deleteUser = async () => {
       if (response === "Yes" && selectedUser !== null) {
         try {
-          const res = await fetch(
-            `https://medequip-api.vercel.app/api/users/${selectedUser}`,
+          const res = await fetch(`https://medequip-api.vercel.app/api/users/${selectedUser}`,
             {
-              method: "DELETE",
+              method: 'DELETE',
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               },
-            },
+            }
           );
-          if (!res.ok) throw new Error(`"Failed to delete user", ${res.json()}`);
+          if (!res.ok) throw new Error('Failed to delete user', res.json);
           const data = await res.json();
           console.log(data);
           router.back();
@@ -118,9 +105,10 @@ const UserDetailsPage = () => {
           console.error(error);
         }
       }
+      
     };
     deleteUser();
-  }, [response, selectedUser]);
+  }, [response, selectedUser, router]);
 
   return (
     <div className="flex flex-col bg-gray-100 w-full lg:grid lg:grid-cols-[auto,1fr] min-h-screen text-gray-800">
@@ -154,8 +142,7 @@ const UserDetailsPage = () => {
               }
               alt="Profile"
               className="w-32 h-32 rounded-full border mb-4"
-              width={32}
-              height={32}
+              width={32} height={32}
             />
             <label className="text-sm text-gray-600 cursor-pointer">
               <input
@@ -166,84 +153,88 @@ const UserDetailsPage = () => {
               />
               Upload Profile Picture
             </label>
-          </div>
-
+        </div>
+           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-600 mb-1">First Name</label>
-              <input
-                type="text"
-                value={user.firstname}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+              <div>
+                <label className="block text-gray-600 mb-1">First Name</label>
+                <input
+                  type="text"
+                  value={user.firstname}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">Last Name</label>
+                <input
+                  type="text"
+                  value={user.lastname}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="test"
+                  value={user.email}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">Occupation</label>
+                <input
+                  type="text"
+                  value={user.occupation}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">Address</label>
+                <input
+                  type="text"
+                  value={user.address}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-600 mb-1">Phone Number</label>
+                <input
+                  type="text"
+                  value={user.phone}
+                  readOnly
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                />
+              </div>
+              <Modal
+                isOpen={showModal}
+                message="Are you sure you want to proceed?"
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
               />
             </div>
-            <div>
-              <label className="block text-gray-600 mb-1">Last Name</label>
-              <input
-                type="text"
-                value={user.lastname}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600 mb-1">Email Address</label>
-              <input
-                type="test"
-                value={user.email}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600 mb-1">Occupation</label>
-              <input
-                type="text"
-                value="Gynecologist"
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600 mb-1">Address</label>
-              <input
-                type="text"
-                value="San Jose, California, USA"
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600 mb-1">Phone Number</label>
-              <input
-                type="text"
-                value={user.phone}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
-              />
-            </div>
-            <Modal
-              isOpen={showModal}
-              message="Are you sure you want to proceed?"
-              onConfirm={handleConfirm}
-              onCancel={handleCancel}
-            />
-          </div>
+        
         </section>
 
         {/* Delete User Button */}
         <div className="flex justify-end">
-          <button
-            onClick={() => {
-              handleOpenModal(user.id);
-            }}
-            className="px-4 lg:px-6 py-2 lg:py-3 bg-red-500 text-white rounded-md hover:bg-red-600"
-          >
-            Delete User
-          </button>
+        <button 
+          onClick={() => {handleOpenModal(user.id);}} 
+          className="px-4 lg:px-6 py-2 lg:py-3 bg-red-500 text-white rounded-md hover:bg-red-600"
+        >
+          Delete User
+        </button>
         </div>
+
       </div>
+    
+    
     </div>
   );
 };

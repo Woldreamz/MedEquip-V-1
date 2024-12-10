@@ -1,162 +1,158 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import { EquipmentImageList } from "../../../../components/equipment/image/imageCollection";
-import EquipmentDetail, {
-  Details,
-} from "../../../../components/equipment/forms/details";
-import Layout from "../../../(root)/layout";
-import Navbar from "../../../../components/Navbar";
-import Button from "../../../../components/ui/Button";
-import Modal from "../../../../components/Modal";
-import UpdateEquipment from "../UpdateEquipment/page";
-import { useSearchParams } from "next/navigation";
-import { BASE_URL } from "../../../../api/base-url";
+import { EquipmentImageList } from "@/components/equipment/image/imageCollection";
+import EquipmentDetail from "@/components/equipment/forms/details";
+import Layout from "@/app/(root)/layout";
+import Navbar from "@/components/Navbar";
+import Button from "@/components/ui/Button";
+import shears from "@/public/Images/shears.png";
+import { useSearchParams, useRouter } from "next/navigation";
+import Modal from '@/components/Modal';
+// import UpdateEquipment from "../UpdateEquipment/page";
 
-export interface ExDetails {
-  id: string | null;
-  name: string;
-  category: string;
-  description: string;
-  tags: string[];
-  useCases: string;
-}
 
 const EquipmentDetails = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const id = searchParams?.get("id");
-  const [details, setDetails] = useState<ExDetails>({
-    id,
+  const id = searchParams?.get('id');
+  const [details, setDetails] = useState({
+    id: id,
     name: "",
     category: "",
     description: "",
     tags: [],
-    useCases: "",
+    useCases: ""
   });
-
   const [allImages, setAllImages] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(
-    null,
-  );
+  const [response, setResponse] = useState<string | null>(null);
+  const [selectedEquipment, setSelectedEquipment] = useState<number | null>(null);
 
-  const handleOpenModal = (equipmentId: string | null) => {
+  const handleOpenModal = (equipmentId: number) => {
     setSelectedEquipment(equipmentId);
     setShowModal(true);
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = () => {
+    setResponse("Yes");
     setShowModal(false);
-    if (selectedEquipment) {
-      try {
-        const res = await fetch(
-          `${BASE_URL}/api/equipment/${selectedEquipment}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          },
-        );
-
-        if (!res.ok) throw new Error("Failed to delete equipment");
-        console.log("Equipment deleted successfully");
-        // Optionally refresh the page or redirect after deletion
-      } catch (error) {
-        console.error("Error deleting equipment:", error);
-      }
-    }
   };
 
   const handleCancel = () => {
+    setResponse("No");
     setShowModal(false);
   };
 
-  // Fetch equipment details
-  useEffect(() => {
-    const fetchEquipment = async () => {
+
+  useEffect(() =>{
+    const fetchUsers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/equipment/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch equipment");
+        const response = await fetch(`https://medequip-api.vercel.app/api/equipment/${id}`);
+        if (!response.ok) throw new Error('Failed to fetch equipment', response.json);
         const data = await response.json();
+        console.log(data);
         setDetails(data);
         setAllImages(data.images);
+        console.log(details, allImages);
       } catch (error) {
-        console.error("Error fetching equipment details:", error);
+        console.error(error);
       }
     };
 
-    fetchEquipment();
-  }, [id]);
+    fetchUsers();
+  },[id]);
+
+  useEffect(() => {
+    const deleteEquipment = async () => {
+      if (response === "Yes" && selectedEquipment !== null) {
+        try {
+          const res = await fetch(`https://medequip-api.vercel.app/api/equipment/${selectedEquipment}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+              },
+            }
+          );
+          if (!res.ok) throw new Error('Failed to delete user', res.json);
+          // const data = await res.json();
+          // console.log(data);
+          router.back();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      
+    };
+    deleteEquipment();
+  }, [response, selectedEquipment]);
 
   // Close modal function
-  const closeModal = () => setShowUpdateModal(false);
-
-  // Save changes and close modal
-  const handleSaveChanges = () => {
-    console.log("Changes saved!");
+  const closeModal = () => {
     setShowUpdateModal(false);
   };
 
+  // Save changes and close modal
+  // const handleSaveChanges = () => {
+  //   // Simulate saving the updated data
+  //   console.log("Changes saved!");
+  //   setShowUpdateModal(false);
+  // };
+  
+
   const data = [
-    { src: "/shears.png", alt: "shears" },
-    { src: "/shears.png", alt: "shears" },
-    { src: "/shears.png", alt: "shears" },
+    { src: shears, alt: "shears" },
+    { src: shears, alt: "shears" },
+    { src: shears, alt: "shears" },
   ];
-  const detail: Details = {
+  const detail = {
     name: details.name,
     category: details.category,
-    description: details.description,
+    description:
+      details.description,
     age: "19-35",
     gender: "Female",
     length: "15cm",
     width: "30cm",
-    keywords: [...details.tags],
+    keywords: [details.tags],
+    useCases: details.useCases
   };
 
   return (
-    <div className="relative flex bg-gray-100 flex-col lg:flex-row min-h-screen">
+    <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
       <Layout>
-        <div className="hidden md:block md:w-1/4 bg-white shadow-lg"></div>
+        <div className="hidden md:block md:w-1/4 bg-white shadow-lg">
+          {/* Sidebar content if needed */}
+        </div>
         <Navbar />
       </Layout>
 
+      {/* Main Content */}
       <div className="flex-1 lg:ml-[21%] p-6 space-y-6 pt-20">
         <section className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex flex-row justify-between h-10 my-4">
-            <h3 className="text-black text-lg pl-5 md:pl-[15%]">
-              Equipment Details
-            </h3>
-            <div className="flex justify-between gap-4">
-              <Button
-                label="Edit"
-                typeProperty="button"
-                onClick={() => setShowUpdateModal(true)}
-              />
-              <Button
-                label="Delete"
-                typeProperty="button"
-                onClick={() => handleOpenModal(details.id)}
-              />
-              <Modal
-                isOpen={showModal}
-                message="Are you sure you want to delete this equipment?"
-                onConfirm={handleConfirm}
-                onCancel={handleCancel}
-              />
+          <div className='flex flex-row justify-between h-10 my-4'>
+            <h3 className='text-black text-lg pl-5 md:pl-[15%]'>Equipment Details</h3>
+            <div className='flex justify-between gap-4'>
+                <Button label='Edit' otherStyles='' onClick={() => router.push(`/equipments/UpdateEquipment?id=${encodeURIComponent(details.id)}`)} typeProperty="button"/>
+                <Button label='Delete'otherStyles='' onClick={() => {handleOpenModal(details.id)}} typeProperty="button" />
             </div>
+            <Modal
+              isOpen={showModal}
+              message="Are you sure you want to proceed?"
+              onConfirm={handleConfirm}
+              onCancel={handleCancel}
+            />
           </div>
           <div className="flex flex-wrap gap-4 mt-4">
             <EquipmentDetail {...detail} />
-            <EquipmentImageList
-              list={allImages.length === 0 ? data : allImages}
-            />
+            <EquipmentImageList list={allImages.length == 0 ? data : allImages} />
           </div>
         </section>
       </div>
 
-      {showUpdateModal && (
+       {/* Update Equipment Modal */}
+       {showUpdateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="relative w-full max-w-lg bg-white rounded-lg shadow-lg p-6">
             <button
@@ -165,11 +161,11 @@ const EquipmentDetails = () => {
             >
               &times;
             </button>
-            <UpdateEquipment
-              equipment={details}
+            {/* <UpdateEquipment
+              equipment={details} // Pass current equipment details
               onClose={closeModal}
-              onSave={handleSaveChanges}
-            />
+              onSave={handleSaveChanges} // Trigger save functionality
+            /> */}
           </div>
         </div>
       )}

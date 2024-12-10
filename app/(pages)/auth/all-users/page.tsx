@@ -2,14 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Layout from "../../../(root)/layout";
+import Layout from "@/app/(root)/layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../../../../components/Navbar";
-import Breadcrumbs from "../../../../components/ui/BreadCrumbs";
+import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import Navbar from "@/components/Navbar";
+import Breadcrumbs from "@/components/ui/BreadCrumbs";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import Modal from "../../../../components/Modal"; // Import the Modal component
-import { useRouter } from "next/navigation";
+// import { BASE_URL } from "@/api/base-url";
+import Modal from "@/components/Modal"; // Import the Modal component
+import { useRouter } from 'next/navigation';
 
 const AllUsers = () => {
   const breadcrumbs = [
@@ -38,20 +39,18 @@ const AllUsers = () => {
     setShowModal(false);
   };
 
-  useEffect(() => {
+  useEffect(() =>{
     const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/users`,
+        const response = await fetch(`https://medequip-api.vercel.app/api/users`,
           {
-            method: "GET",
+            method: 'GET',
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             },
-          },
+          }
         );
-        if (!response.ok)
-          throw new Error(`Failed to fetch equipment, ${response.json()}`);
+        if (!response.ok) throw new Error('Failed to fetch equipment', response.json);
         const data = await response.json();
         console.log(data);
         setusersList(data);
@@ -61,22 +60,21 @@ const AllUsers = () => {
     };
 
     fetchUsers();
-  }, []);
+  },[]);
 
   useEffect(() => {
     const deleteUser = async () => {
       if (response === "Yes" && selectedUser !== null) {
         try {
-          const res = await fetch(
-            `https://medequip-api.vercel.app/api/users/${selectedUser}`,
+          const res = await fetch(`https://medequip-api.vercel.app/api/users/${selectedUser}`,
             {
-              method: "DELETE",
+              method: 'DELETE',
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               },
-            },
+            }
           );
-          if (!res.ok) throw new Error(`"Failed to delete user", ${res.json()}`);
+          if (!res.ok) throw new Error('Failed to delete user', res.json);
           const data = await res.json();
           console.log(data);
           // setusersList((prev) => prev.filter((user) => user.id !== selectedUser));
@@ -84,6 +82,7 @@ const AllUsers = () => {
           console.error(error);
         }
       }
+      
     };
     deleteUser();
   }, [response, selectedUser]);
@@ -116,75 +115,56 @@ const AllUsers = () => {
               <thead>
                 <tr className="bg-gray-200">
                   <th className="p-2 md:p-4 text-xs md:text-sm">Name</th>
-                  <th className="p-2 md:p-4 text-xs md:text-sm">Email</th>
-                  <th className="p-2 md:p-4 text-xs md:text-sm">Phone</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Occupation</th>
+                  <th className="p-2 md:p-4 text-xs md:text-sm">Location</th>
                   <th className="p-2 md:p-4 text-xs md:text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {/* Table rows */}
-                {usersList.map(
-                  (
-                    user: {
-                      id: number;
-                      firstname: string;
-                      lastname: string;
-                      email: string;
-                      phone: string;
-                    },
-                    index,
-                  ) => (
-                    <tr key={index} className="border-t">
-                      <td className="p-2 md:p-4 text-xs md:text-sm">
-                        {user.firstname} {user.lastname}
-                      </td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">
-                        {user.email}
-                      </td>
-                      <td className="p-2 md:p-4 text-xs md:text-sm">
-                        {user.phone}
-                      </td>
-                      <td className="p-2 md:p-4 flex space-x-2 text-xs md:text-sm">
-                        <button
-                          onClick={() =>
-                            router.push(
-                              `/auth/profile?id=${encodeURIComponent(user.id)}`,
-                            )
-                          }
-                          className="flex items-center text-green-500 p-1 sm:p-2"
-                        >
-                          <FontAwesomeIcon
-                            icon={faEye as IconProp}
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleOpenModal(user.id);
-                          }}
-                          className="flex items-center text-red-500 p-1 sm:p-2"
-                        >
-                          <FontAwesomeIcon
-                            icon={faTrash as IconProp}
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <Modal
-                          isOpen={showModal}
-                          message="Are you sure you want to proceed?"
-                          onConfirm={handleConfirm}
-                          onCancel={handleCancel}
-                        />
-                      </td>
-                    </tr>
-                  ),
-                )}
+                {usersList.map((user: { 
+                  id: number; firstname: string; lastname: string; occupation: string; address: string 
+                 }, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-2 md:p-4 text-xs md:text-sm">
+                      {user.firstname} {user.lastname}
+                    </td>
+                    <td className="p-2 md:p-4 text-xs md:text-sm">
+                      {user.occupation}
+                    </td>
+                    <td className="p-2 md:p-4 text-xs md:text-sm">
+                      {user.address}
+                    </td>
+                    <td className="p-2 md:p-4 flex space-x-2 text-xs md:text-sm">
+                      <button 
+                       onClick={() => router.push(`/auth/profile?id=${encodeURIComponent(user.id)}`)} 
+                       className="flex items-center text-green-500 p-1 sm:p-2"
+                      >
+                        <FontAwesomeIcon icon={faEye as IconProp} className="h-4 w-4" />
+                      </button>
+                      <button 
+                       onClick={() => {handleOpenModal(user.id);}} 
+                       className="flex items-center text-red-500 p-1 sm:p-2"
+                      >
+                        <FontAwesomeIcon icon={faTrash as IconProp} className="h-4 w-4" />
+                      </button>
+                      <Modal
+                        isOpen={showModal}
+                        message="Are you sure you want to proceed?"
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                      />
+                    </td>
+                  </tr>
+                ))}
+
               </tbody>
             </table>
           </div>
         </section>
       </div>
-    </div>
+
+    </div>    
   );
 };
 

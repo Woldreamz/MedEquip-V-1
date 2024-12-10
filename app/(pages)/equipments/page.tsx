@@ -1,93 +1,40 @@
 "use client";
-import { useState, useEffect } from "react";
-import EquipmentList from "../../../components/equipment/cardList";
-import { Details } from "../../../components/equipment/forms/details";
-import { MinorNav } from "../../../components/equipment/minorNav";
-import add from "../../../public/icons/add.svg";
-import React from "react";
-import Layout from "../../(root)/layout";
-import Navbar from "../../../components/Navbar";
-import { BASE_URL } from "../../../api/base-url";
 
-interface SearchParams {
-  name: string;
-  dateAdded: string | number | Date;
-}
+import { useState, useEffect } from "react";
+import EquipmentList from "@/components/equipment/cardList";
+import { MinorNav } from "@/components/equipment/minorNav";
+import add from "@/public/icons/add.svg";
+import React from "react";
+import Layout from "@/app/(root)/layout";
+import Navbar from "@/components/Navbar";
 
 const EquipmentsPage = () => {
   // State variables
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortOption, setSortOption] = useState("name_asc");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [fetchedEquipmentList, setFetchedEquipmentList] = useState([]);
   const [equipmentList, setEquipmentList] = useState([]);
 
-  // Fetch equipment list from the API
-  useEffect(() => {
-    const fetchEquipments = async () => {
-      setLoading(true);
-      setError(null);
-
+  useEffect(() =>{
+    const equipList = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/api/equipment`);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch equipment");
-        }
-
+        const response = await fetch(`https://medequip-api.vercel.app/api/equipment/`);
+        if (!response.ok) throw new Error('Failed to fetch equipment', response.json);
         const data = await response.json();
-        setFetchedEquipmentList(data); // Store fetched data
-        setEquipmentList(data); // Initialize display list with fetched data
-      } catch (error: any) {
-        setError(error.message || "An error occurred");
-      } finally {
-        setLoading(false);
+        console.log(data);
+        setEquipmentList(data.data);
+      } catch (error) {
+        console.error(error);
       }
     };
 
-    fetchEquipments();
-  }, []);
+    equipList();
+  },[]);
 
-  // Update the displayed equipment list when filters or sort options change
-  useEffect(() => {
-    const filteredAndSortedEquipment = fetchedEquipmentList
-      .filter((equipment: Details) => {
-        // Filter by search query, category, and keywords
-        const matchesSearch =
-          equipment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (equipment.keywords &&
-            equipment.keywords.some((keyword: string) =>
-              keyword.toLowerCase().includes(searchQuery.toLowerCase()),
-            ));
-        const matchesCategory =
-          selectedCategory === "all" || equipment.category === selectedCategory;
-
-        return matchesSearch && matchesCategory;
-      })
-      .sort((a: SearchParams, b: SearchParams) => {
-        // Sort based on selected option
-        if (sortOption === "name_asc") {
-          return a.name.localeCompare(b.name);
-        } else if (sortOption === "name_desc") {
-          return b.name.localeCompare(a.name);
-        } else if (sortOption === "date_added_asc") {
-          return (
-            new Date(a.dateAdded).getTime() - new Date(b.dateAdded).getTime()
-          );
-        } else if (sortOption === "date_added_desc") {
-          return (
-            new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime()
-          );
-        }
-        return 0;
-      });
-
-    setEquipmentList(filteredAndSortedEquipment);
-  }, [fetchedEquipmentList, searchQuery, selectedCategory, sortOption]);
-
-  console.log(equipmentList);
+  // Filter equipment based on search query
+  // const filteredEquipments = equipmentList.filter((equipment) =>
+  //   equipment.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  // );
 
   return (
     <div className="flex bg-gray-100 flex-col lg:flex-row min-h-screen">
@@ -110,8 +57,8 @@ const EquipmentsPage = () => {
             link="/equipments/basic_information"
             alt="add new"
           />
-          {/* Search and Filters */}
-          <div className="mt-4 pl-20 flex flex-col lg:flex-row justify-between items-center gap-4">
+          {/* Search Bar */}
+          <div className="mt-4 flex justify-between items-center">
             <input
               type="text"
               className="p-2 rounded-md border border-gray-300 w-full max-w-xs"
@@ -119,33 +66,11 @@ const EquipmentsPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-
-            <select
-              className="p-2 rounded-md border border-gray-300"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="all">All Categories</option>
-              <option value="Imaging">Imaging</option>
-              <option value="Surgery">Surgery</option>
-              <option value="Diagnostic">Diagnostic</option>
-            </select>
-
-            <select
-              className="p-2 rounded-md border border-gray-300"
-              value={sortOption}
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="name_asc">Name: A-Z</option>
-              <option value="name_desc">Name: Z-A</option>
-              <option value="date_added_desc">Date Added: Newest</option>
-              <option value="date_added_asc">Date Added: Oldest</option>
-            </select>
           </div>
         </section>
 
         {/* Equipment List Section */}
-        <section className="bg-white p-6 pr-20 rounded-lg shadow-md pt-6">
+        <section className="bg-white p-6 rounded-lg shadow-md pt-6">
           {/* Error Message */}
           {error && (
             <div className="bg-red-100 text-red-800 p-4 rounded-md mb-4">
@@ -164,13 +89,10 @@ const EquipmentsPage = () => {
             </div>
           )}
 
-          {/* Pagination Placeholder */}
+          {/* Pagination */}
           <div className="flex justify-center mt-6">
-            <button
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              onClick={() => alert("Pagination coming soon!")}
-            >
-              Load More
+            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+               Load More
             </button>
           </div>
         </section>

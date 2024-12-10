@@ -1,9 +1,10 @@
 "use client";
-
+import {useRouter} from 'next/navigation'
 import { useState, useEffect } from "react";
-import BaseLayout from "../../../components/BaseLayout"; // Ensure this path matches your folder structure
+import BaseLayout from "@/components/BaseLayout"; // Ensure this path matches your folder structure
 
 const Settings = () => {
+  const router = useRouter(); // Initialize the router
   const [profile, setProfile] = useState<any>(null);
 
   const [preferences, setPreferences] = useState({
@@ -25,35 +26,11 @@ const Settings = () => {
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
+    setProfile( {...profile, [name]: value });
     console.log(profile);
+    
   };
-  // const handleSubmit = async () => {
-  //   try {
-  //     const response = await fetch(`https://medequip-api.vercel.app/api/users/${profile.id}`,{
-  //       method: 'PUT',
-  //       headers: {
-  //         'Accept': 'application/json',
-  //         'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-  //       },
-  //       body: JSON.stringify(profile),
-  //     });
-  //     if (response.ok) {
-  //       //redirect to the email verification page after sucessfull submission
-  //       const responseData = await response.json();
-  //       console.log(responseData);
-  //       alert("User updated  successfully");
-  //     }else {
-  //       const errorData = await response.json();
-  //       console.error("Error: Failed to submit the form", errorData);
-  //       alert("Failed to update the user information");
-  //     }
-  //   } catch (error) {
-  //     console.error("An error occured:", error);
-  //   }
-
-  // }
-
+ 
   const togglePreference = (key: "notifications" | "darkMode") => {
     setPreferences((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -177,7 +154,9 @@ const Settings = () => {
 
             {/* Save Changes Button */}
             <div className="flex justify-end">
-              <button className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition">
+              <button onClick={() => router.push(`/auth/update-user?id=${encodeURIComponent(profile.id)}`)} 
+               className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
+              >
                 Save Changes
               </button>
             </div>

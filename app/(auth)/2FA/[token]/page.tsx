@@ -27,13 +27,13 @@ export default function VerifyAccount({params: promiseParams}:{params: Promise<{
       console.log("Verifying token:", token);
       try {
         const response = await fetch(`https://medequip-api.vercel.app/api/auth/verify/${token}`);
-        if (!response.ok) throw new Error(`'Failed to verify token', ${response.json()}`);
+        if (!response.ok) throw new Error('Failed to verify token', response.json);
 
         const result = await response.json();
         setData(result);
         setVerificationStatus("success"); // Update the verification status in the VerificationContext
         router.push("/verified");
-      } catch (err: any) {
+      } catch (err) {
         setError(err.message);
         setVerificationStatus("error");
       } finally {
@@ -42,7 +42,7 @@ export default function VerifyAccount({params: promiseParams}:{params: Promise<{
     };
 
     verifyToken();
-  }, [router, token]); // Trigger when router is ready and token is available
+  }, [router, token, setVerificationStatus]); // Trigger when router is ready and token is available
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;

@@ -11,11 +11,7 @@ export const EquipmentImageList = (props: ImageList) => {
       <h4 className="text-black text-lg">Images</h4>
       <div className="flex flex-col gap-4 rounded border-none">
         {props.list.map((item, index) => (
-          <EquipmentIcon
-            key={index}
-            src={item.src ? item.src : item}
-            alt={item.alt}
-          />
+          <EquipmentIcon key={index} src={item.src ? item.src: item} alt={item.alt} />
         ))}
       </div>
     </section>

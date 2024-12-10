@@ -1,17 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Layout from "../../(root)/layout";
+import Layout from "@/app/(root)/layout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
-  faTrash,
-  faChevronRight,
-  faTimes,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
-import Navbar from "../../../components/Navbar";
+import Navbar from "@/components/Navbar";
 import { IconProp } from "@fortawesome/fontawesome-svg-core";
-import { useRouter } from "next/navigation";
-import Modal from "../../../components/Modal";
+import { useRouter } from 'next/navigation';
+import Modal from '@/components/Modal';
 
 interface TopUser {
   username: string;
@@ -41,20 +39,18 @@ const Accounts = () => {
     setShowModal(false);
   };
 
-  useEffect(() => {
+  useEffect(() =>{
     const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          `https://medequip-api.vercel.app/api/users`,
+        const response = await fetch(`https://medequip-api.vercel.app/api/users`,
           {
-            method: "GET",
+            method: 'GET',
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
             },
-          },
+          }
         );
-        if (!response.ok)
-          throw new Error(`"Failed to fetch equipment", ${response.json()}`);
+        if (!response.ok) throw new Error('Failed to fetch equipment', response.json);
         const data = await response.json();
         console.log(data);
         setusersList(data);
@@ -64,22 +60,21 @@ const Accounts = () => {
     };
 
     fetchUsers();
-  }, []);
-
+  },[]);
+  
   useEffect(() => {
     const deleteUser = async () => {
       if (response === "Yes" && selectedUser !== null) {
         try {
-          const res = await fetch(
-            `https://medequip-api.vercel.app/api/users/${selectedUser}`,
+          const res = await fetch(`https://medequip-api.vercel.app/api/users/${selectedUser}`,
             {
-              method: "DELETE",
+              method: 'DELETE',
               headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
               },
-            },
+            }
           );
-          if (!res.ok) throw new Error(`"Failed to delete user", ${res.json()}`);
+          if (!res.ok) throw new Error('Failed to delete user', res.json);
           const data = await res.json();
           console.log(data);
           // setusersList((prev) => prev.filter((user) => user.id !== selectedUser));
@@ -87,6 +82,7 @@ const Accounts = () => {
           console.error(error);
         }
       }
+      
     };
     deleteUser();
   }, [response, selectedUser]);
@@ -141,67 +137,43 @@ const Accounts = () => {
               <thead className="bg-gray-100">
                 <tr>
                   <th className="p-3 text-left text-gray-600">Name</th>
-                  <th className="p-3 text-left text-gray-600">Email</th>
-                  <th className="p-3 text-left text-gray-600">Phone</th>
+                  <th className="p-3 text-left text-gray-600">Occupation</th>
+                  <th className="p-3 text-left text-gray-600">Location</th>
                   <th className="p-3 text-left text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="rounded-lg">
-                {usersList.slice(0, 5).map(
-                  (
-                    user: {
-                      id: number;
-                      firstname: string;
-                      lastname: string;
-                      email: string;
-                      phone: string;
-                    },
-                    index,
-                  ) => (
-                    <tr
-                      key={index}
-                      className="border-t hover:bg-gray-50 rounded-lg"
-                    >
-                      <td className="p-3">
-                        {user.firstname} {user.lastname}
-                      </td>
-                      <td className="p-3">{user.email}</td>
-                      <td className="p-3">{user.phone}</td>
-                      <td className="p-3 flex space-x-3">
-                        <button
-                          onClick={() =>
-                            router.push(
-                              `/auth/profile?id=${encodeURIComponent(user.id)}`,
-                            )
-                          }
-                          className="text-green-500 bg-gray-100 hover:text-green-700 rounded-md"
-                        >
-                          <FontAwesomeIcon
-                            icon={faEye as IconProp}
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleOpenModal(user.id);
-                          }}
-                          className="text-red-500 bg-gray-100 hover:text-red-700 rounded-md"
-                        >
-                          <FontAwesomeIcon
-                            icon={faTrash as IconProp}
-                            className="h-4 w-4"
-                          />
-                        </button>
-                        <Modal
-                          isOpen={showModal}
-                          message="Are you sure you want to proceed?"
-                          onConfirm={handleConfirm}
-                          onCancel={handleCancel}
-                        />
-                      </td>
-                    </tr>
-                  ),
-                )}
+                {usersList.slice(0,5).map((user: {
+                   id: number; firstname: string; lastname: string; occupation: string; address: string 
+                  }, index) => (
+                  <tr
+                    key={index}
+                    className="border-t hover:bg-gray-50 rounded-lg"
+                  >
+                    <td className="p-3">{user.firstname} {user.lastname}</td>
+                    <td className="p-3">{user.occupation}</td>
+                    <td className="p-3">{user.address}</td>
+                    <td className="p-3 flex space-x-3">
+                      <button onClick={() => router.push(`/auth/profile?id=${encodeURIComponent(user.id)}`)} 
+                       className="text-green-500 bg-gray-100 hover:text-green-700 rounded-md"
+                      >
+                        <FontAwesomeIcon icon={faEye as IconProp} className="h-4 w-4" />
+                      </button>
+                      <button 
+                       onClick={() => {handleOpenModal(user.id);}} 
+                       className="text-red-500 bg-gray-100 hover:text-red-700 rounded-md"
+                      >
+                        <FontAwesomeIcon icon={faTrash as IconProp} className="h-4 w-4" />
+                      </button>
+                      <Modal
+                        isOpen={showModal}
+                        message="Are you sure you want to proceed?"
+                        onConfirm={handleConfirm}
+                        onCancel={handleCancel}
+                      />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -260,6 +232,7 @@ const Accounts = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

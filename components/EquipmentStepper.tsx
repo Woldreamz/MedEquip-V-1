@@ -8,7 +8,7 @@ interface FormState {
   name: string;
   description: string;
   category: string;
-  image: File | string;
+  images: File | string;
   tags: string[];
   useCases: string;
 }
@@ -49,54 +49,50 @@ interface Specifications {
 const EquipmentStepper = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [categories, setCategories] = useState([
     "Surgery",
     "Diagnostics",
     "Therapy",
   ]);
-  const [description, setDescription] = useState("");
   const [specifications, setSpecifications] = useState<Specifications>({});
   const [keywords, setKeywords] = useState(["Surgery"]);
   const [newKeyword, setNewKeyword] = useState("");
-  const [useCases, setUseCases] = useState<string[]>([]);
-  const [newUseCase, setNewUseCase] = useState<string>("");
-  const [images, setImages] = useState<string[]>([]);
+  const [useCases, setUseCases] = useState(["Lorem ipsum dolor sit amet."]);
+  const [newUseCase, setNewUseCase] = useState("");
+  const [images, setImages] = useState([
+    "/shears.png",
+    "/stetoscope.png",
+    "/chemobed.png",
+  ]);
   const [tag, setTag] = useState<string[]>([]);
   const [form, setForm] = useState<FormState>({
-    name: "",
-    description: "",
-    category: "",
-    image: "",
+    name: '',
+    description: '',
+    category: '',
+    images: "",
     tags: [],
-    useCases: "",
+    useCases: ''
   });
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-    const { name, value, type } = event.target;
+  function handleChange(event:React.ChangeEvent<HTMLInputElement>) {
+    const { name, value, files } = event.target;
+   
 
-    if (name === "tags") {
-      const tagsArray = value.split(",").map((tag) => tag.trim());
-      setTag(tagsArray); // Fix: directly set the array instead of using spread operator
-      setForm({ ...form, tags: tagsArray });
-    } else if (name === "image" && type === 'file') {
-      const target = event.target as HTMLInputElement
-      // const file = files[0];
-      if(target.files &&  target.files.length > 0){
-        setForm({ ...form, image: target.files[0] });
-      }
-    } else {
-      setForm({ ...form, [name]: value });
+    if (name === 'tags') {
+        const tagsArray = value.split(',').map((tag) => tag.trim());
+        setTag(tagsArray); // Fix: directly set the array instead of using spread operator
+        setForm({...form, tags: tagsArray});
+    }else if (name === 'images' && files && files.length>0) {
+      const fileArray = Array.from(files);
+      const newImageUrls = fileArray.map((file) => URL.createObjectURL(file));
+      setImages((prev) => [...prev, ...newImageUrls]);
+      setForm({...form, images: fileArray[0]});
+    } else{
+        setForm({...form, [name]: value }); 
     }
     console.log(form);
   }
-
-  // Modal state for success/cancel
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [modalType, setModalType] = useState<"success" | "cancel">("success");
 
   const handleAddCategory = () => {
     if (newCategory && !categories.includes(newCategory)) {
@@ -120,53 +116,53 @@ const EquipmentStepper = () => {
   };
 
   const handleSubmit = async () => {
+    
     const formData = new FormData();
 
-    // Append all form fields to FormData
-    formData.append("name", form.name);
-    formData.append("description", form.description);
-    formData.append("category", form.category);
-    // formData.append("tags", JSON.stringify(form.tags));
-    form.tags.forEach((tag) => formData.append("tags[]", tag));
-    formData.append("useCases", form.useCases);
+  // Append all form fields to FormData
+   formData.append("name", form.name);
+   formData.append("description", form.description);
+   formData.append("category", form.category);
+  // formData.append("tags", JSON.stringify(form.tags));
+   form.tags.forEach((tag) => formData.append("tags[]", tag));
+   formData.append("useCases", form.useCases);
 
-    // Append the file (if any)
-    if (form.image instanceof File) {
-      formData.append("files", form.image);
+  // Append the file (if any)
+
+    if (form.images && typeof form.images === "object") {
+      formData.append("images", form.images as File);
     }
+    
     console.log(formData);
-
+    
+    
     try {
-      const response = await fetch(
-        "https://medequip-api.vercel.app/api/equipment/",
-        {
-          method: "POST",
+        const response = await fetch('https://medequip-api.vercel.app/api/equipment/',{
+          method: 'POST',
           headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           },
           body: formData,
-        },
-      );
-      if (response.ok) {
-        //redirect to the email verification page after sucessfull submission
-        const responseData = await response.json();
-        console.log(responseData);
-        alert("Equipment created successfully");
-        router.push("/equipments");
-      } else {
-        const errorData = await response.json();
-        console.error("Error: Failed to submit the form", errorData);
-        alert("Failed to create equipment");
+        });
+        if (response.ok) {
+          //redirect to the email verification page after sucessfull submission
+          const responseData = await response.json();
+          console.log(responseData);
+          alert("Equipment created successfully");
+          router.push("/equipments")
+        }else {
+          const errorData = await response.json();
+          console.error("Error: Failed to submit the form", errorData);
+          alert("Failed to create equipment");
+        }
+      } catch (error) {
+        console.error("An error occured:", error);
       }
-    } catch (error) {
-      console.error("An error occured:", error);
-    }
-  };
+    
+  }
   const handleCancel = () => {
-    setModalMessage("Equipment submission canceled!");
-    setModalType("cancel");
-    setModalVisible(true);
+    router.push("/equipments")
+    alert("Equipmeent creation cancelled");
   };
 
   const handleNext = () => {
@@ -336,13 +332,11 @@ const EquipmentStepper = () => {
               <label className="block border-2 border-dashed border-gray-300 p-4 rounded-md cursor-pointer">
                 <input
                   type="file"
-                  onChange={(e) => {
-                    const file = e.target.files ? e.target.files[0] : null; // Check if files is not null
-                    if (file) {
-                      const imageURL = URL.createObjectURL(file);
-                      setImages([...images, imageURL]);
-                    }
-                  }}
+                  onChange={
+                    handleChange
+                  }
+                  accept="image/*"
+                  name="images"
                   className="hidden"
                 />
 
@@ -354,7 +348,7 @@ const EquipmentStepper = () => {
                 {images.map((image, index) => (
                   <li key={index} className="relative w-20 h-20">
                     <Image
-                      src={image}
+                      src={typeof image === 'string' ? image : URL.createObjectURL(image)}
                       alt={`Uploaded ${index + 1}`}
                       width={80} // specify width
                       height={80} // specify height

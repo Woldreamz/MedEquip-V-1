@@ -14,7 +14,7 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ breadcrumbs, className }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ breadcrumbs }) => {
 
   return (
     <nav
